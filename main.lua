@@ -10,13 +10,15 @@ require "helpers"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
+playerScaleFactor = 1
 playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
 playerSpeed = CANVAS_WIDTH/10
-player = Entity:new(playerPos, playerSpeed)
+player = Entity:new(playerPos, playerSpeed, playerScaleFactor)
 
+followerScaleFactor = 0.5
 followerPos = vector(CANVAS_WIDTH/4, CANVAS_HEIGHT/4)
 followerSpeed = CANVAS_WIDTH/(20)
-follower = Entity:new(followerPos, followerSpeed)
+follower = Entity:new(followerPos, followerSpeed, followerScaleFactor)
 
 function love.load()
     -- set up default drawing options
@@ -64,6 +66,7 @@ end
 function love.update(dt)
     movePlayer(dt)
     follow(follower, player, dt)
+    player:resize(0.999)
 end
 
 function movePlayer(dt)
@@ -115,9 +118,9 @@ function love.draw()
 
     -- Draw the game here!
 
-    love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, 1, 1, images.child:getWidth()/2, images.child:getHeight()/2)
+    love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, player.scaleFactor, player.scaleFactor, images.child:getWidth()/2, images.child:getHeight()/2)
 
-    love.graphics.draw(images.child, follower.pos.x, follower.pos.y, math.pi, 1, 1, images.child:getWidth()/2, images.child:getHeight()/2)
+    love.graphics.draw(images.child, follower.pos.x, follower.pos.y, math.pi, follower.scaleFactor, follower.scaleFactor, images.child:getWidth()/2, images.child:getHeight()/2)
 
     tlfres.endRendering()
 end
