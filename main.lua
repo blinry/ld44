@@ -70,7 +70,15 @@ function love.load()
 end
 
 function initGame()
+    love.physics.setMeter(100)
+    world = love.physics.newWorld(0,0,true)
+    -- TODO: this is the callback that gets called for handling collisions
+    -- world:setCallback(handlingCollisions)
 
+    buildWalls()
+end
+
+function buildWalls()
     wall_pos = vector(CANVAS_WIDTH/2 + CANVAS_WIDTH/4, CANVAS_HEIGHT/2 + CANVAS_HEIGHT/4)
     wall = Wall:new(wall_pos, CANVAS_WIDTH/10, CANVAS_HEIGHT/10)
     table.insert(walls, wall)
