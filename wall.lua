@@ -8,6 +8,11 @@ function Wall:initialize(pos, width, height)
     Entity.initialize(self, pos, speed, scaleFactor)
     self.width = width
     self.height = height
-  end
+
+    self.body = love.physics.newBody(world, pos.x, pos.y, "static")
+    self.shape = love.physics.newRectangleShape(width, height)
+    self.fixture = love.physics.newFixture(self.body, self.shape)
+    self.fixture:setFriction(0)
+end
 
 return Wall
