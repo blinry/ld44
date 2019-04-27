@@ -15,7 +15,7 @@ playerSpeed = CANVAS_WIDTH/10
 player = Entity:new(playerPos, playerSpeed)
 
 followerPos = vector(CANVAS_WIDTH/4, CANVAS_HEIGHT/4)
-followerSpeed = CANVAS_WIDTH/20
+followerSpeed = CANVAS_WIDTH/(20)
 follower = Entity:new(followerPos, followerSpeed)
 
 function love.load()
@@ -63,6 +63,7 @@ end
 
 function love.update(dt)
     movePlayer(dt)
+    follow(follower, player, dt)
 end
 
 function movePlayer(dt)
@@ -100,6 +101,12 @@ end
 function love.mousepressed(x, y, button)
     sounds.meow:setPitch(0.5+math.random())
     sounds.meow:play()
+end
+
+function follow(follower, player, dt)
+    diff = player.pos - follower.pos
+    nDiff = diff:normalized()
+    follower.pos = follower.pos + (follower.speed * nDiff * dt)
 end
 
 function love.draw()

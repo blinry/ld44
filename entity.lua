@@ -2,8 +2,9 @@ local class = require "lib.middleclass"
 
 local Entity = class('Entity')
 
-function Entity:initialize(pos)
+function Entity:initialize(pos, speed)
   self.pos = pos
+  self.speed = speed
 end
 
 return Entity
