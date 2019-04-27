@@ -74,7 +74,8 @@ end
 
 function love.update(dt)
     movePlayer(dt)
-    follow(follower, player, dt)
+    target = nearestObject()
+    follow(follower, target, dt)
     -- player:resize(0.999)
     collide()
 end
@@ -86,6 +87,36 @@ function collide()
             table.remove(breadCrumbs, i)
         end
     end
+end
+
+function nearestObject()
+    diffToPlayer = (player.pos - follower.pos):len()
+    closeCrumb = nearestCrumb()
+
+    if closeCrumb == nil then
+        return player
+    end
+
+    diffToClosestCrumb = (follower.pos - nearestCrumb().pos):len()
+    if diffToPlayer < diffToClosestCrumb then
+        return player
+    end
+    return nearestCrumb()
+end
+
+function nearestCrumb()
+    currentSmallest = 100000
+    closestCrumb = nil
+    for i,crumb in pairs(breadCrumbs) do
+        diff = crumb.pos - follower.pos
+        if diff:len() < currentSmallest then
+            currentSmallest = diff:len()
+            closestCrumb = crumb
+        end
+        print(currentSmallest)
+    end
+    print("----")
+    return closestCrumb
 end
 
 function movePlayer(dt)
@@ -132,8 +163,8 @@ function love.mousepressed(x, y, button)
     sounds.meow:play()
 end
 
-function follow(follower, player, dt)
-    diff = player.pos - follower.pos
+function follow(follower, target, dt)
+    diff = target.pos - follower.pos
     nDiff = diff:normalized()
     follower.pos = follower.pos + (follower.speed * nDiff * dt)
 end
