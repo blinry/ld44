@@ -5,7 +5,7 @@ function Wall:initialize(pos, width, height)
     -- position is the left top position of the square.
     speed = 0
     scaleFactor = 1
-    Entity:initialize(pos, speed, scaleFactor)
+    Entity.initialize(self, pos, speed, scaleFactor)
     self.width = width
     self.height = height
   end

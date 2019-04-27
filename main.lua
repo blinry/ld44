@@ -16,18 +16,20 @@ currentBreadCrumb = nil
 
 playerLifePoints = 1000
 playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
-playerSpeed = CANVAS_WIDTH/10
+playerSpeed = CANVAS_WIDTH/5
 player = Entity:new(playerPos, playerSpeed, playerLifePoints)
 
 followerScaleFactor = 0.5
 followerPos = vector(CANVAS_WIDTH/4, CANVAS_HEIGHT/4)
-followerSpeed = CANVAS_WIDTH/(20)
+followerSpeed = CANVAS_WIDTH/(10)
 follower = Entity:new(followerPos, followerSpeed, followerScaleFactor)
 
 breadCrumbs = {}
 walls = {}
 
 function love.load()
+    math.randomseed(os.time())
+
     -- set up default drawing options
     love.graphics.setBackgroundColor(0, 0, 0)
 
@@ -76,9 +78,11 @@ end
 
 function love.update(dt)
     movePlayer(dt)
-    target = nearestObject()
-    follow(follower, target, dt)
-    -- player:resize(0.999)
+    target = mostAttractiveCrumb()
+    if target then
+        follow(follower, target, dt)
+    end
+
     collide()
 
     if currentBreadCrumb then
@@ -117,7 +121,7 @@ function nearestCrumb()
     closestCrumb = nil
     for i,crumb in pairs(breadCrumbs) do
         diff = crumb.pos - follower.pos
-        if diff:len() < currentSmallest then
+        if diff:len() < currentSmallest and crumb:radius() > diff:len() then
             currentSmallest = diff:len()
             closestCrumb = crumb
         end
@@ -125,8 +129,22 @@ function nearestCrumb()
     return closestCrumb
 end
 
+function mostAttractiveCrumb()
+    local currentHighestAttractiveness = 0
+    local mostAttractiveCrumb = nil
+    for i,crumb in pairs(breadCrumbs) do
+        diff = crumb.pos - follower.pos
+        attractiveness = crumb.lifePoints/diff:len()
+        if attractiveness > currentHighestAttractiveness then
+            currentHighestAttractiveness = attractiveness
+            mostAttractiveCrumb = crumb
+        end
+    end
+    return mostAttractiveCrumb
+end
+
 function movePlayer(dt)
-    if not currentBreadCrumb then
+    -- if not currentBreadCrumb then
         if love.keyboard.isDown("left") then
             player.pos.x = player.pos.x - dt*playerSpeed
         end
@@ -139,7 +157,7 @@ function movePlayer(dt)
         if love.keyboard.isDown("down") then
             player.pos.y = player.pos.y + dt*playerSpeed
         end
-    end
+    -- end
 end
 
 function love.mouse.getPosition()
@@ -154,13 +172,14 @@ function love.keypressed(key)
         isFullscreen = love.window.getFullscreen()
         love.window.setFullscreen(not isFullscreen)
     elseif key == "space" then
-        currentBreadCrumb = BreadCrumb:new(player.pos:clone())
+        currentBreadCrumb = BreadCrumb:new(player.pos)
         currentBreadCrumb.lifePoints = 0
     end
 end
 
 function love.keyreleased(key)
     if key == "space" then
+        currentBreadCrumb.pos = currentBreadCrumb.pos:clone()
         table.insert(breadCrumbs, currentBreadCrumb)
         currentBreadCrumb = nil
     end
@@ -206,7 +225,7 @@ function love.draw()
 end
 
 function drawCrumb(crumb)
-    love.graphics.setColor(0, 1, 0, 0.5) -- set color of crumb drop
-    local crumbScale = math.sqrt(crumb.lifePoints)*10
+    love.graphics.setColor(crumb.color.r, crumb.color.g, crumb.color.b, 0.5) -- set color of crumb drop
+    local crumbScale = crumb:radius()
     love.graphics.circle("fill", crumb.pos.x, crumb.pos.y, crumbScale)
 end
