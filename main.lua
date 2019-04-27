@@ -55,10 +55,16 @@ function love.mouse.getPosition()
     return tlfres.getMousePosition(CANVAS_WIDTH, CANVAS_HEIGHT)
 end
 
-circlex = 0
-circley = 0
+
+crumbDrops = {}
+-- circlex = 0
+-- circley = 0
 function dropCircle()
     circlex, circley = love.mouse.getPosition()
+    table.insert(crumbDrops, {
+        x = circlex,
+        y = circley
+    })
 end
 
 function love.keypressed(key)
@@ -86,7 +92,11 @@ function love.draw()
     tlfres.beginRendering(CANVAS_WIDTH, CANVAS_HEIGHT)
 
     -- Draw the game here!
-    love.graphics.circle("fill", circlex, circley, 50, 100)
+    -- love.graphics.circle("fill", circlex, circley, 50, 100)
+    for _, crumbDrop in pairs(crumbDrops) do
+        love.graphics.setColor(255, 255, 255, 255) -- set color of crumb drop
+        love.graphics.circle("fill", crumbDrop.x, crumbDrop.y, 50)
+    end
 
     x, y = love.mouse.getPosition()
 
