@@ -2,14 +2,10 @@ local class = require "lib.middleclass"
 
 local Entity = class('Entity')
 
-function Entity:initialize(pos, speed, scaleFactor)
+function Entity:initialize(pos, speed, lifePoints)
   self.pos = pos
   self.speed = speed
-  self.scaleFactor = scaleFactor
-end
-
-function Entity:resize(sizeFactor)
-  self.scaleFactor = self.scaleFactor * sizeFactor
+  self.lifePoints = lifePoints
 end
 
 return Entity

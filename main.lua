@@ -11,12 +11,12 @@ require "helpers"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
-crumbRadius = 50
+crumbRadius = 10
 
-playerScaleFactor = 1
+playerLifePoints = 100
 playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
 playerSpeed = CANVAS_WIDTH/10
-player = Entity:new(playerPos, playerSpeed, playerScaleFactor)
+player = Entity:new(playerPos, playerSpeed, playerLifePoints)
 
 followerScaleFactor = 0.5
 followerPos = vector(CANVAS_WIDTH/4, CANVAS_HEIGHT/4)
@@ -113,9 +113,7 @@ function nearestCrumb()
             currentSmallest = diff:len()
             closestCrumb = crumb
         end
-        print(currentSmallest)
     end
-    print("----")
     return closestCrumb
 end
 
@@ -141,6 +139,7 @@ end
 function createBreadCrumb()
     -- circlex, circley = love.mouse.getPosition()
     table.insert(breadCrumbs, BreadCrumb:new(player.pos:clone()))
+    player.lifePoints = player.lifePoints - 10
 end
 
 function love.keypressed(key)
@@ -178,16 +177,18 @@ function love.draw()
         love.graphics.setColor(255, 255, 255, 255) -- set color of crumb drop
         love.graphics.circle("fill", breadCrumb.pos.x, breadCrumb.pos.y, crumbRadius)
     end
+
     -- draw wall
     for _, wall in pairs(walls) do
         love.graphics.setColor(0, 255, 0, 255) -- set color of walls
         love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
     end
-    
-    love.graphics.setColor(255,2555,255,255)
-    love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, player.scaleFactor, player.scaleFactor, images.child:getWidth()/2, images.child:getHeight()/2)
 
-    love.graphics.draw(images.child, follower.pos.x, follower.pos.y, math.pi, follower.scaleFactor, follower.scaleFactor, images.child:getWidth()/2, images.child:getHeight()/2)
+    local playerScale = math.sqrt(player.lifePoints/playerLifePoints)
+    love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, playerScale, playerScale, images.child:getWidth()/2, images.child:getHeight()/2)
+
+    local followerScale = math.sqrt(follower.lifePoints)
+    love.graphics.draw(images.child, follower.pos.x, follower.pos.y, math.pi, followerScale, followerScale, images.child:getWidth()/2, images.child:getHeight()/2)
 
     tlfres.endRendering()
 end
