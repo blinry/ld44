@@ -11,6 +11,8 @@ require "helpers"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
+crumbRadius = 50
+
 playerScaleFactor = 1
 playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
 playerSpeed = CANVAS_WIDTH/10
@@ -67,7 +69,17 @@ end
 function love.update(dt)
     movePlayer(dt)
     follow(follower, player, dt)
-    player:resize(0.999)
+    -- player:resize(0.999)
+    collide()
+end
+
+function collide()
+    for i,crumb in pairs(breadCrumbs) do
+        diff = crumb.pos - follower.pos
+        if diff:len() < crumbRadius then
+            table.remove(breadCrumbs, i)
+        end
+    end
 end
 
 function movePlayer(dt)
@@ -129,7 +141,7 @@ function love.draw()
     -- draw crumbdrops
     for _, breadCrumb in pairs(breadCrumbs) do
         love.graphics.setColor(255, 255, 255, 255) -- set color of crumb drop
-        love.graphics.circle("fill", breadCrumb.pos.x, breadCrumb.pos.y, 50)
+        love.graphics.circle("fill", breadCrumb.pos.x, breadCrumb.pos.y, crumbRadius)
     end
 
     love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, player.scaleFactor, player.scaleFactor, images.child:getWidth()/2, images.child:getHeight()/2)
