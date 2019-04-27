@@ -4,6 +4,7 @@ tlfres = require "lib.tlfres"
 
 class = require "lib.middleclass"
 Entity = require "entity"
+DynamicEntity = require "DynamicEntity"
 BreadCrumb = require "breadcrumb"
 Wall = require "wall"
 require "helpers"
@@ -14,18 +15,9 @@ CANVAS_HEIGHT = 1080
 crumbRadius = 5
 currentBreadCrumb = nil
 
-playerLifePoints = 1000
-playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
-playerSpeed = CANVAS_WIDTH/5
-player = Entity:new(playerPos, playerSpeed, playerLifePoints)
-
-followerScaleFactor = 0.5
-followerPos = vector(CANVAS_WIDTH/4, CANVAS_HEIGHT/4)
-followerSpeed = CANVAS_WIDTH/(10)
-follower = Entity:new(followerPos, followerSpeed, followerScaleFactor)
-
 breadCrumbs = {}
 walls = {}
+
 
 function love.load()
     math.randomseed(os.time())
@@ -75,6 +67,21 @@ function initGame()
     -- TODO: this is the callback that gets called for handling collisions
     -- world:setCallback(handlingCollisions)
 
+    playerLifePoints = 1000
+    playerAcceleration = 50000
+    playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
+    playerSpeed = CANVAS_WIDTH/5
+    -- player = Entity:new(playerPos, playerSpeed, playerLifePoints)
+    player = DynamicEntity:new(playerPos, playerSpeed, playerLifePoints)
+
+    followerAcceleration = playerAcceleration / 2
+    followerScaleFactor = 0.5
+    followerPos = vector(CANVAS_WIDTH/4, CANVAS_HEIGHT/4)
+    followerSpeed = CANVAS_WIDTH/(10)
+    -- follower = Entity:new(followerPos, followerSpeed, followerScaleFactor)
+    follower = DynamicEntity:new(followerPos, followerSpeed, followerScaleFactor)
+
+
     buildWalls()
 end
 
@@ -85,12 +92,14 @@ function buildWalls()
 end
 
 function love.update(dt)
+    world:update(dt)
     movePlayer(dt)
     target = mostAttractiveCrumb()
     if target then
         follow(follower, target, dt)
     end
 
+    -- Deprecatation pending!
     collide(dt)
 
     if currentBreadCrumb then
@@ -122,14 +131,14 @@ function suckBreadCrumb(crumb, index, dt)
 end
 
 function nearestObject()
-    diffToPlayer = (player.pos - follower.pos):len()
+    diffToPlayer = (vector(player.body:getPosition()) - vector(follower.body:getPosition())):len()
     closeCrumb = nearestCrumb()
 
     if closeCrumb == nil then
         return player
     end
 
-    diffToClosestCrumb = (follower.pos - nearestCrumb().pos):len()
+    diffToClosestCrumb = (vector(follower.body:getPosition()) - nearestCrumb().pos):len()
     if diffToPlayer < diffToClosestCrumb then
         return player
     end
@@ -140,7 +149,7 @@ function nearestCrumb()
     currentSmallest = 100000
     closestCrumb = nil
     for i,crumb in pairs(breadCrumbs) do
-        diff = crumb.pos - follower.pos
+        diff = crumb.pos - vector(follower.body:getPosition())
         if diff:len() < currentSmallest and crumb:radius() > diff:len() then
             currentSmallest = diff:len()
             closestCrumb = crumb
@@ -153,7 +162,7 @@ function mostAttractiveCrumb()
     local currentHighestAttractiveness = 0
     local mostAttractiveCrumb = nil
     for i,crumb in pairs(breadCrumbs) do
-        diff = crumb.pos - follower.pos
+        diff = crumb.pos - vector(follower.body:getPosition()) 
         attractiveness = crumb.lifePoints/diff:len()
         if attractiveness > currentHighestAttractiveness then
             currentHighestAttractiveness = attractiveness
@@ -164,20 +173,21 @@ function mostAttractiveCrumb()
 end
 
 function movePlayer(dt)
-    -- if not currentBreadCrumb then
-        if love.keyboard.isDown("left") then
-            player.pos.x = player.pos.x - dt*playerSpeed
-        end
-        if love.keyboard.isDown("right") then
-            player.pos.x = player.pos.x + dt*playerSpeed
-        end
-        if love.keyboard.isDown("up") then
-            player.pos.y = player.pos.y - dt*playerSpeed
-        end
-        if love.keyboard.isDown("down") then
-            player.pos.y = player.pos.y + dt*playerSpeed
-        end
-    -- end
+    if love.keyboard.isDown("left") then
+        player.body:applyForce(-playerAcceleration, 0, 0 ,0)
+    end
+    if love.keyboard.isDown("right") then
+        player.body:applyForce(playerAcceleration, 0, 0 ,0)
+    end
+    if love.keyboard.isDown("up") then
+        player.body:applyForce(0, -playerAcceleration, 0 ,0)
+    end
+    if love.keyboard.isDown("down") then
+        player.body:applyForce(0, playerAcceleration, 0 ,0)
+    end
+
+    local x,y = player.body:getLinearVelocity()
+    player.body:applyForce(-70*x, -70*y)
 end
 
 function love.mouse.getPosition()
@@ -192,7 +202,7 @@ function love.keypressed(key)
         isFullscreen = love.window.getFullscreen()
         love.window.setFullscreen(not isFullscreen)
     elseif key == "space" then
-        currentBreadCrumb = BreadCrumb:new(player.pos)
+        currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()))
         currentBreadCrumb.lifePoints = 0
     end
 end
@@ -211,9 +221,13 @@ function love.mousepressed(x, y, button)
 end
 
 function follow(follower, target, dt)
-    diff = target.pos - follower.pos
+    diff = target.pos - vector(follower.body:getPosition())
     nDiff = diff:normalized()
-    follower.pos = follower.pos + (follower.speed * nDiff * dt)
+    forceApplied = nDiff * followerAcceleration
+    -- follower.pos = follower.pos + (follower.speed * nDiff * dt)
+    follower.body:applyForce(forceApplied.x, forceApplied.y, 0, 0)
+    local x, y = follower.body:getLinearVelocity()
+    follower.body:applyForce(-70*x, -70*y)
 end
 
 function love.draw()
@@ -228,10 +242,12 @@ function love.draw()
 
     love.graphics.setColor(1, 1, 1, 1) -- set color of player
     local playerScale = math.sqrt(player.lifePoints/playerLifePoints)*2
-    love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, playerScale, playerScale, images.child:getWidth()/2, images.child:getHeight()/2)
+    local playerX, playerY = player.body:getPosition()
+    love.graphics.draw(images.child, playerX, playerY, 0, playerScale, playerScale, images.child:getWidth()/2, images.child:getHeight()/2)
 
     local followerScale = math.sqrt(follower.lifePoints)
-    love.graphics.draw(images.child, follower.pos.x, follower.pos.y, math.pi, followerScale, followerScale, images.child:getWidth()/2, images.child:getHeight()/2)
+    local followerX, followerY = follower.body:getPosition()
+    love.graphics.draw(images.child, followerX, followerY, math.pi, followerScale, followerScale, images.child:getWidth()/2, images.child:getHeight()/2)
 
     -- draw crumbdrops
     for _, breadCrumb in pairs(breadCrumbs) do
