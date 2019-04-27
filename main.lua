@@ -2,12 +2,21 @@ require "lib.slam"
 vector = require "lib.hump.vector"
 tlfres = require "lib.tlfres"
 
+local class = require "lib.middleclass"
+Entity = require "entity"
+
 require "helpers"
 
-CANVAS_WIDTH = 1280
-CANVAS_HEIGHT = 720
+CANVAS_WIDTH = 1920
+CANVAS_HEIGHT = 1080
 
-child_rotation = 0
+playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
+playerSpeed = CANVAS_WIDTH/10
+player = Entity:new(playerPos, playerSpeed)
+
+followerPos = vector(CANVAS_WIDTH/4, CANVAS_HEIGHT/4)
+followerSpeed = CANVAS_WIDTH/20
+follower = Entity:new(followerPos, followerSpeed)
 
 function love.load()
     -- set up default drawing options
@@ -45,10 +54,30 @@ function love.load()
             end
         end
     end
+
+    initGame()
+end
+
+function initGame()
 end
 
 function love.update(dt)
-    child_rotation = child_rotation+dt*5
+    movePlayer(dt)
+end
+
+function movePlayer(dt)
+    if love.keyboard.isDown("left") then
+        player.pos.x = player.pos.x - dt*playerSpeed
+    end
+    if love.keyboard.isDown("right") then
+        player.pos.x = player.pos.x + dt*playerSpeed
+    end
+    if love.keyboard.isDown("up") then
+        player.pos.y = player.pos.y - dt*playerSpeed
+    end
+    if love.keyboard.isDown("down") then
+        player.pos.y = player.pos.y + dt*playerSpeed
+    end
 end
 
 function love.mouse.getPosition()
@@ -88,7 +117,7 @@ function love.mousepressed(x, y, button)
 end
 
 function love.draw()
-    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
     tlfres.beginRendering(CANVAS_WIDTH, CANVAS_HEIGHT)
 
     -- Draw the game here!
@@ -98,9 +127,9 @@ function love.draw()
         love.graphics.circle("fill", crumbDrop.x, crumbDrop.y, 50)
     end
 
-    x, y = love.mouse.getPosition()
+    love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, 1, 1, images.child:getWidth()/2, images.child:getHeight()/2)
 
-    love.graphics.draw(images.child, x, y, child_rotation, 1, 1, images.child:getWidth()/2, images.child:getHeight()/2)
+    love.graphics.draw(images.child, follower.pos.x, follower.pos.y, math.pi, 1, 1, images.child:getWidth()/2, images.child:getHeight()/2)
 
     tlfres.endRendering()
 end
