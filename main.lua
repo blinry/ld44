@@ -5,7 +5,7 @@ tlfres = require "lib.tlfres"
 class = require "lib.middleclass"
 Entity = require "entity"
 BreadCrumb = require "breadcrumb"
-
+Wall = require "wall"
 require "helpers"
 
 CANVAS_WIDTH = 1920
@@ -23,6 +23,8 @@ followerPos = vector(CANVAS_WIDTH/4, CANVAS_HEIGHT/4)
 followerSpeed = CANVAS_WIDTH/(20)
 follower = Entity:new(followerPos, followerSpeed, followerScaleFactor)
 
+breadCrumbs = {}
+walls = {}
 function love.load()
     -- set up default drawing options
     love.graphics.setBackgroundColor(0, 0, 0)
@@ -64,6 +66,10 @@ function love.load()
 end
 
 function initGame()
+
+    wall_pos = vector(CANVAS_WIDTH/2 + CANVAS_WIDTH/4, CANVAS_HEIGHT/2 + CANVAS_HEIGHT/4)
+    wall = Wall:new(wall_pos, CANVAS_WIDTH/10, CANVAS_HEIGHT/10)
+    table.insert(walls, wall)
 end
 
 function love.update(dt)
@@ -101,8 +107,6 @@ function love.mouse.getPosition()
     return tlfres.getMousePosition(CANVAS_WIDTH, CANVAS_HEIGHT)
 end
 
-
-breadCrumbs = {}
 function createBreadCrumb()
     -- circlex, circley = love.mouse.getPosition()
     table.insert(breadCrumbs, BreadCrumb:new(player.pos:clone()))
@@ -143,7 +147,13 @@ function love.draw()
         love.graphics.setColor(255, 255, 255, 255) -- set color of crumb drop
         love.graphics.circle("fill", breadCrumb.pos.x, breadCrumb.pos.y, crumbRadius)
     end
-
+    -- draw wall
+    for _, wall in pairs(walls) do
+        love.graphics.setColor(0, 255, 0, 255) -- set color of walls
+        love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
+    end
+    
+    love.graphics.setColor(255,2555,255,255)
     love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, player.scaleFactor, player.scaleFactor, images.child:getWidth()/2, images.child:getHeight()/2)
 
     love.graphics.draw(images.child, follower.pos.x, follower.pos.y, math.pi, follower.scaleFactor, follower.scaleFactor, images.child:getWidth()/2, images.child:getHeight()/2)
