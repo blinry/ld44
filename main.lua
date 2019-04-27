@@ -2,8 +2,9 @@ require "lib.slam"
 vector = require "lib.hump.vector"
 tlfres = require "lib.tlfres"
 
-local class = require "lib.middleclass"
+class = require "lib.middleclass"
 Entity = require "entity"
+BreadCrumb = require "breadcrumb"
 
 require "helpers"
 
@@ -85,15 +86,10 @@ function love.mouse.getPosition()
 end
 
 
-crumbDrops = {}
--- circlex = 0
--- circley = 0
-function dropCircle()
-    circlex, circley = love.mouse.getPosition()
-    table.insert(crumbDrops, {
-        x = circlex,
-        y = circley
-    })
+breadCrumbs = {}
+function createBreadCrumb()
+    -- circlex, circley = love.mouse.getPosition()
+    table.insert(breadCrumbs, BreadCrumb:new(player.pos:clone()))
 end
 
 function love.keypressed(key)
@@ -104,7 +100,7 @@ function love.keypressed(key)
         isFullscreen = love.window.getFullscreen()
         love.window.setFullscreen(not isFullscreen)
     elseif key == "space" then
-        dropCircle()
+        createBreadCrumb()
     end
 end
 
@@ -120,11 +116,10 @@ function love.draw()
     love.graphics.setColor(1, 1, 1)
     tlfres.beginRendering(CANVAS_WIDTH, CANVAS_HEIGHT)
 
-    -- Draw the game here!
-    -- love.graphics.circle("fill", circlex, circley, 50, 100)
-    for _, crumbDrop in pairs(crumbDrops) do
+    -- draw crumbdrops
+    for _, breadCrumb in pairs(breadCrumbs) do
         love.graphics.setColor(255, 255, 255, 255) -- set color of crumb drop
-        love.graphics.circle("fill", crumbDrop.x, crumbDrop.y, 50)
+        love.graphics.circle("fill", breadCrumb.pos.x, breadCrumb.pos.y, 50)
     end
 
     love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, 1, 1, images.child:getWidth()/2, images.child:getHeight()/2)
