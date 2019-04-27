@@ -11,9 +11,10 @@ require "helpers"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
-crumbRadius = 10
+crumbRadius = 5
+currentBreadCrumb = nil
 
-playerLifePoints = 100
+playerLifePoints = 1000
 playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
 playerSpeed = CANVAS_WIDTH/10
 player = Entity:new(playerPos, playerSpeed, playerLifePoints)
@@ -25,6 +26,7 @@ follower = Entity:new(followerPos, followerSpeed, followerScaleFactor)
 
 breadCrumbs = {}
 walls = {}
+
 function love.load()
     -- set up default drawing options
     love.graphics.setBackgroundColor(0, 0, 0)
@@ -78,6 +80,12 @@ function love.update(dt)
     follow(follower, target, dt)
     -- player:resize(0.999)
     collide()
+
+    if currentBreadCrumb then
+        local lifeIncrease = 50*dt
+        currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease
+        player.lifePoints = player.lifePoints - lifeIncrease
+    end
 end
 
 function collide()
@@ -118,28 +126,24 @@ function nearestCrumb()
 end
 
 function movePlayer(dt)
-    if love.keyboard.isDown("left") then
-        player.pos.x = player.pos.x - dt*playerSpeed
-    end
-    if love.keyboard.isDown("right") then
-        player.pos.x = player.pos.x + dt*playerSpeed
-    end
-    if love.keyboard.isDown("up") then
-        player.pos.y = player.pos.y - dt*playerSpeed
-    end
-    if love.keyboard.isDown("down") then
-        player.pos.y = player.pos.y + dt*playerSpeed
+    if not currentBreadCrumb then
+        if love.keyboard.isDown("left") then
+            player.pos.x = player.pos.x - dt*playerSpeed
+        end
+        if love.keyboard.isDown("right") then
+            player.pos.x = player.pos.x + dt*playerSpeed
+        end
+        if love.keyboard.isDown("up") then
+            player.pos.y = player.pos.y - dt*playerSpeed
+        end
+        if love.keyboard.isDown("down") then
+            player.pos.y = player.pos.y + dt*playerSpeed
+        end
     end
 end
 
 function love.mouse.getPosition()
     return tlfres.getMousePosition(CANVAS_WIDTH, CANVAS_HEIGHT)
-end
-
-function createBreadCrumb()
-    -- circlex, circley = love.mouse.getPosition()
-    table.insert(breadCrumbs, BreadCrumb:new(player.pos:clone()))
-    player.lifePoints = player.lifePoints - 10
 end
 
 function love.keypressed(key)
@@ -150,11 +154,16 @@ function love.keypressed(key)
         isFullscreen = love.window.getFullscreen()
         love.window.setFullscreen(not isFullscreen)
     elseif key == "space" then
-        createBreadCrumb()
+        currentBreadCrumb = BreadCrumb:new(player.pos:clone())
+        currentBreadCrumb.lifePoints = 0
     end
 end
 
 function love.keyreleased(key)
+    if key == "space" then
+        table.insert(breadCrumbs, currentBreadCrumb)
+        currentBreadCrumb = nil
+    end
 end
 
 function love.mousepressed(x, y, button)
@@ -172,23 +181,32 @@ function love.draw()
     love.graphics.setColor(1, 1, 1)
     tlfres.beginRendering(CANVAS_WIDTH, CANVAS_HEIGHT)
 
-    -- draw crumbdrops
-    for _, breadCrumb in pairs(breadCrumbs) do
-        love.graphics.setColor(255, 255, 255, 255) -- set color of crumb drop
-        love.graphics.circle("fill", breadCrumb.pos.x, breadCrumb.pos.y, crumbRadius)
-    end
-
     -- draw wall
     for _, wall in pairs(walls) do
-        love.graphics.setColor(0, 255, 0, 255) -- set color of walls
+        love.graphics.setColor(0, 1, 0, 1) -- set color of walls
         love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
     end
 
-    local playerScale = math.sqrt(player.lifePoints/playerLifePoints)
+    love.graphics.setColor(1, 1, 1, 1) -- set color of player
+    local playerScale = math.sqrt(player.lifePoints/playerLifePoints)*2
     love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, playerScale, playerScale, images.child:getWidth()/2, images.child:getHeight()/2)
 
     local followerScale = math.sqrt(follower.lifePoints)
     love.graphics.draw(images.child, follower.pos.x, follower.pos.y, math.pi, followerScale, followerScale, images.child:getWidth()/2, images.child:getHeight()/2)
 
+    -- draw crumbdrops
+    for _, breadCrumb in pairs(breadCrumbs) do
+        drawCrumb(breadCrumb)
+    end
+    if currentBreadCrumb then
+        drawCrumb(currentBreadCrumb)
+    end
+
     tlfres.endRendering()
+end
+
+function drawCrumb(crumb)
+    love.graphics.setColor(0, 1, 0, 0.5) -- set color of crumb drop
+    local crumbScale = math.sqrt(crumb.lifePoints)*10
+    love.graphics.circle("fill", crumb.pos.x, crumb.pos.y, crumbScale)
 end
