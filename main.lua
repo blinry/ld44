@@ -83,7 +83,7 @@ function love.update(dt)
         follow(follower, target, dt)
     end
 
-    collide()
+    collide(dt)
 
     if currentBreadCrumb then
         local lifeIncrease = 50*dt
@@ -92,12 +92,24 @@ function love.update(dt)
     end
 end
 
-function collide()
+function collide(dt)
     for i,crumb in pairs(breadCrumbs) do
         diff = crumb.pos - follower.pos
         if diff:len() < crumbRadius then
-            table.remove(breadCrumbs, i)
+            suckBreadCrumb(crumb, i, dt)
+            -- table.remove(breadCrumbs, i)
         end
+    end
+end
+
+function suckBreadCrumb(crumb, index, dt) 
+    if crumb.lifePoints <= 0 then
+        -- TODO: find sucking sounds
+        -- sounds.meow:setPitch(0.5+math.random())
+        -- sounds.meow:play();
+        table.remove(breadCrumbs, index)
+    else 
+        crumb.lifePoints = crumb.lifePoints - (50 * dt)
     end
 end
 
