@@ -4,14 +4,13 @@ tlfres = require "lib.tlfres"
 
 require "helpers"
 
-CANVAS_WIDTH = 1280
-CANVAS_HEIGHT = 720
+CANVAS_WIDTH = 1920
+CANVAS_HEIGHT = 1080
 
 child_rotation = 0
 
 function love.load()
     -- set up default drawing options
-    love.graphics.setDefaultFilter( "nearest", "nearest", 1 )
     love.graphics.setBackgroundColor(0, 0, 0)
 
     -- load assets
@@ -75,7 +74,7 @@ function love.mousepressed(x, y, button)
 end
 
 function love.draw()
-    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
     tlfres.beginRendering(CANVAS_WIDTH, CANVAS_HEIGHT)
 
     -- Draw the game here!
