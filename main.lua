@@ -11,7 +11,6 @@ child_rotation = 0
 
 function love.load()
     -- set up default drawing options
-    love.graphics.setDefaultFilter( "nearest", "nearest", 1 )
     love.graphics.setBackgroundColor(0, 0, 0)
 
     -- load assets
@@ -56,6 +55,12 @@ function love.mouse.getPosition()
     return tlfres.getMousePosition(CANVAS_WIDTH, CANVAS_HEIGHT)
 end
 
+circlex = 0
+circley = 0
+function dropCircle()
+    circlex, circley = love.mouse.getPosition()
+end
+
 function love.keypressed(key)
     if key == "escape" then
         love.window.setFullscreen(false)
@@ -63,6 +68,8 @@ function love.keypressed(key)
     elseif key == "f" then
         isFullscreen = love.window.getFullscreen()
         love.window.setFullscreen(not isFullscreen)
+    elseif key == "space" then
+        dropCircle()
     end
 end
 
@@ -79,6 +86,7 @@ function love.draw()
     tlfres.beginRendering(CANVAS_WIDTH, CANVAS_HEIGHT)
 
     -- Draw the game here!
+    love.graphics.circle("fill", circlex, circley, 50, 100)
 
     x, y = love.mouse.getPosition()
 
