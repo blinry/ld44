@@ -9,6 +9,9 @@ BreadCrumb = require "breadcrumb"
 Wall = require "wall"
 Trap = require "trap"
 Door = require "door"
+Key = require "key"
+Player = require "player"
+Follower = require "follower"
 require "helpers"
 Hole = require "hole"
 Bush = require "bush"
@@ -62,40 +65,60 @@ function initGame()
 
     breadCrumbs = {}
     walls = {}
+    pickups = {}
     holes = {}
     bushes = {}
 
     love.physics.setMeter(100)
     world = love.physics.newWorld(0,0,true)
     -- TODO: this is the callback that gets called for handling collisions
-    world:setCallbacks(beginContact)
+    world:setCallbacks(beginContact, endContact)
 
-    playerLifePoints = 100
+    playerLifePoints = 50
     playerAcceleration = 100000
     playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
     playerSpeed = CANVAS_WIDTH/5
     -- player = Entity:new(playerPos, playerSpeed, playerLifePoints)
-    player = DynamicEntity:new(playerPos, playerSpeed, playerLifePoints)
+    player = Player:new(playerPos, playerSpeed, playerLifePoints)
 
     followerAcceleration = playerAcceleration / 2
-    followerLifePoints = 100
-    followerSpeed = CANVAS_WIDTH/(10)
+    followerLifePoints = playerLifePoints
+
 
     followers = {}
+    math.randomseed(os.time())
     for i = 1,3 do
         followerPos = vector(math.random(0, CANVAS_WIDTH), math.random(0, CANVAS_HEIGHT))
-        table.insert(followers, DynamicEntity:new(followerPos, followerSpeed, followerLifePoints))
+        variation = math.random(0, followerAcceleration/3)
+        table.insert(followers, Follower:new(followerPos, followerAcceleration+variation, followerLifePoints/2))
     end
 
     buildWalls()
+    key = Key:new(vector(CANVAS_WIDTH-100,100))
+    table.insert(pickups, key)
     buildTraps()
     buildHoles()
     buildBushes()
-
-    -- this line needs to be customized depending on bush
+        -- this line needs to be customized depending on bush
     for _, bush in pairs(bushes) do 
         placeFollowersInBush(bush)
     end
+end
+
+function endContact(a, b, collision)
+    local aObject = a:getUserData()
+    local bObject = b:getUserData()
+
+    local aClass = a:getUserData().class.name
+    local bClass = b:getUserData().class.name
+
+    if bClass == "Follower" and aClass == "Player" then
+        aObject.beingDamaged = aObject.beingDamaged - 1
+    end
+    if aClass == "Follower" and bClass == "Player" then
+        bObject.beingDamaged = bObject.beingDamaged - 1
+    end
+
 end
 
 function beginContact(a, b, collision)
@@ -105,8 +128,20 @@ function beginContact(a, b, collision)
     local aClass = a:getUserData().class.name
     local bClass = b:getUserData().class.name
 
-    if aClass == "Door" then aObject.locked = false end
-    if bClass == "Door" then bObject.locked = false end
+    if aClass == "Door" and bClass == "DynamicEntity" and bObject.currentlyHeld
+        then aObject.locked = false
+    end
+    if bClass == "Door" and aClass == "DynamicEntity" and aObject.currentlyHeld
+        then aObject.locked = false
+    end
+
+
+    if bClass == "Follower" and aClass == "Player" then
+        aObject.beingDamaged = aObject.beingDamaged + 1
+    end
+    if aClass == "Follower" and bClass == "Player" then
+        bObject.beingDamaged = bObject.beingDamaged + 1
+    end
 
     -- if a:getUserData() and b:getUserData() then
     --     if a:getUserData().typ == "bubble" and b:getUserData().typ == "red" then
@@ -156,15 +191,17 @@ function buildBush()
 end
 
 function placeFollowersInBush(bush)
-    followerAcceleration = playerAcceleration / 2
-    followerLifePoints = 50
-    followerSpeed = 0
+   
     
     for i = 1,5 do
+        followerAcceleration = playerAcceleration / 2
+        variation = math.random(0, followerAcceleration/3)
+        followerLifePoints = 50
+        followerSpeed = 50
         local bush_x = bush.pos.x +  bush.width/2 + math.random(0, bush.width/5)
         local bush_y = bush.pos.y + bush.height/2 + math.random(0, bush.height/5)
         followerPos = vector(bush_x, bush_y)
-        follower = DynamicEntity:new(followerPos, followerSpeed, followerLifePoints)
+        follower = Follower:new(followerPos, followerAcceleration+variation, followerLifePoints/2)
         follower.mobility = false
         table.insert(followers, follower)
         table.insert(bush.hiding_entities, follower)
@@ -212,6 +249,7 @@ end
 function love.update(dt)
     world:update(dt)
     movePlayer(dt)
+    local lifeIncrease = 50*dt
 
     for _, follower in pairs(followers) do
         target = findTarget(follower)
@@ -235,14 +273,16 @@ function love.update(dt)
         object:update()
     end
     player:update()
+    if player.beingDamaged > 0 then
+        player.lifePoints = player.lifePoints - lifeIncrease * 1.75
+    end
 
     -- Deprecatation pending!
     collide(dt)
 
-    local lifeIncrease = 50*dt
     if currentBreadCrumb then
         currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
-        currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()*10
+        currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()
         currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease
         player.lifePoints = player.lifePoints - lifeIncrease
         if player.lifePoints <= 0 then
@@ -317,16 +357,29 @@ function die()
     initGame()
 end
 
-function collide(dt)
-    for i,crumb in pairs(breadCrumbs) do
-        for _, follower in pairs(followers) do
-            diff = crumb.pos - vector(follower.body:getPosition())
-            if diff:len() < crumb:radius() then
-                suckBreadCrumb(crumb, i, dt, follower)
-                -- table.remove(breadCrumbs, i)
-            end
+function overlapFollowers(pos, r)
+    for _, follower in pairs(followers) do
+        local diff = pos - vector(follower.body:getPosition())
+        if diff:len() < r then
+            return follower
         end
     end
+end
+
+function collide(dt)
+    for i,crumb in pairs(breadCrumbs) do
+        -- for _, follower in pairs(followers) do
+            -- diff = crumb.pos - vector(follower.body:getPosition())
+            -- if diff:len() < crumb:radius() then
+                -- suckBreadCrumb(crumb, i, dt, follower)
+                -- table.remove(breadCrumbs, i)
+            -- end
+        collided = overlapFollowers(crumb.pos, crumb:radius())
+        if collided then
+            suckBreadCrumb(crumb, i, dt, collided)
+        end
+    end
+
     -- This is the code to trigger traps and followers
     for _, follower in pairs(followers) do
         local followerX, followerY = follower.body:getPosition()
@@ -339,7 +392,14 @@ function collide(dt)
             trap.gotFollower = true
         end
     end
-    
+
+    for i, pickup in pairs(pickups) do
+        collided = overlapFollowers(pickup.pos, pickup:radius())
+        if collided then
+            table.remove(pickups, i)
+            collided.currentlyHeld = pickup
+        end
+    end
 end
 
 function suckBreadCrumb(crumb, index, dt, follower)
@@ -348,7 +408,7 @@ function suckBreadCrumb(crumb, index, dt, follower)
         -- sounds.meow:setPitch(0.5+math.random())
         -- sounds.meow:play();
         table.remove(breadCrumbs, index)
-    else 
+    else
         local suckedLifePoints = 50 * dt
         crumb.lifePoints = crumb.lifePoints - suckedLifePoints
         follower.lifePoints = follower.lifePoints + suckedLifePoints
@@ -362,9 +422,9 @@ function findTarget(follower)
     table.insert(targets, player)
     for i,target in pairs(targets) do
         diff = target:position() - follower:position()
-        attractiveness = target.lifePoints/diff:len()
-        if attractiveness > currentHighestAttractiveness then
-            currentHighestAttractiveness = attractiveness
+        a = target:attractiveness()/diff:len()
+        if a > currentHighestAttractiveness then
+            currentHighestAttractiveness = a
             mostAttractiveTarget = target
         end
     end
@@ -401,8 +461,7 @@ function love.keypressed(key)
         isFullscreen = love.window.getFullscreen()
         love.window.setFullscreen(not isFullscreen)
     elseif key == "lctrl" then
-        currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()))
-        currentBreadCrumb.lifePoints = 0
+        currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), 0)
         table.insert(breadCrumbs, currentBreadCrumb)
     end
 end
@@ -422,8 +481,7 @@ end
 function follow(follower, target, dt)
     diff = target:position() - vector(follower.body:getPosition())
     nDiff = diff:normalized()
-    forceApplied = nDiff * followerAcceleration
-    -- follower.pos = follower.pos + (follower.speed * nDiff * dt)
+    forceApplied = nDiff * follower.acceleration
     follower.body:applyForce(forceApplied.x, forceApplied.y, 0, 0)
 end
 
@@ -456,15 +514,22 @@ function love.draw()
 
     -- draw player
     love.graphics.setColor(1, 1, 1, 1) -- set color of player
-    local playerScale = math.sqrt(player.lifePoints/playerLifePoints)*2
+    local playerScale = player:radius()/50
     local playerX, playerY = player.body:getPosition()
     love.graphics.draw(images.piggy, playerX, playerY, 0, playerScale*player.flip, playerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+    -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
+    -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
 
     for _, follower in pairs(followers) do
-        local followerScale = math.sqrt(follower.lifePoints/playerLifePoints)
+        local followerScale = follower:radius()/50
         local followerX, followerY = follower.body:getPosition()
         love.graphics.setColor(1, 0.5, 0.5, 1)
+        if follower.currentlyHeld then
+            love.graphics.setColor(0.5, 1, 0.5, 1)
+        end
         love.graphics.draw(images.piggy, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
+        -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
     end
 
     -- draw crumbdrops
@@ -481,6 +546,10 @@ function love.draw()
         drawBush(bush)
     end
 
+    -- draw pickups
+    for _, pickup in pairs(pickups) do
+        love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
+    end
 
     tlfres.endRendering()
 end
