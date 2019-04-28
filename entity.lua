@@ -8,6 +8,10 @@ function Entity:initialize(pos, speed, lifePoints)
   self.lifePoints = lifePoints
 end
 
+function Entity:position()
+    return self.pos
+end
+
 return Entity
 
 -- Fruit.static.sweetness_threshold = 5 -- class variable (also admits methods)
