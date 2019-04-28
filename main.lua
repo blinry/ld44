@@ -8,6 +8,7 @@ DynamicEntity = require "dynamicentity"
 BreadCrumb = require "breadcrumb"
 Wall = require "wall"
 Trap = require "trap"
+Door = require "door"
 require "helpers"
 
 CANVAS_WIDTH = 1920
@@ -64,7 +65,7 @@ function initGame()
     love.physics.setMeter(100)
     world = love.physics.newWorld(0,0,true)
     -- TODO: this is the callback that gets called for handling collisions
-    -- world:setCallback(handlingCollisions)
+    world:setCallbacks(beginContact)
 
     playerLifePoints = 100
     playerAcceleration = 100000
@@ -86,6 +87,25 @@ function initGame()
     buildWalls()
 end
 
+function beginContact(a, b, collision)
+    local aObject = a:getUserData()
+    local bObject = b:getUserData()
+
+    local aClass = a:getUserData().class.name
+    local bClass = b:getUserData().class.name
+
+    if aClass == "Door" then aObject.locked = false end
+    if bClass == "Door" then bObject.locked = false end
+
+    -- if a:getUserData() and b:getUserData() then
+    --     if a:getUserData().typ == "bubble" and b:getUserData().typ == "red" then
+    --         pickUp(b:getUserData().object, a:getUserData().object)
+    --     elseif a:getUserData().typ == "red" and b:getUserData().typ == "bubble" then
+    --         pickUp(a:getUserData().object, b:getUserData().object)
+    --     end
+    -- end
+end
+
 function buildWalls()
     buildWall(0, 0, CANVAS_WIDTH, 10)
     buildWall(0, 0, 10, CANVAS_HEIGHT)
@@ -93,6 +113,8 @@ function buildWalls()
     buildWall(CANVAS_WIDTH-10, 0, 10, CANVAS_HEIGHT)
 
     buildWall(CANVAS_WIDTH/6, CANVAS_HEIGHT/2-5, CANVAS_WIDTH/6*4, 10)
+
+    buildDoor(CANVAS_WIDTH/6, CANVAS_HEIGHT/2+5, 10, CANVAS_HEIGHT/2-5)
 end
 
 function buildWall(x, y, w, h)
@@ -105,6 +127,12 @@ function buildWall(x, y, w, h)
 
 
 
+end
+
+function buildDoor(x, y, w, h)
+    wall_pos = vector(x, y)
+    wall = Door:new(wall_pos, w, h)
+    table.insert(walls, wall)
 end
 
 function love.update(dt)
@@ -122,6 +150,10 @@ function love.update(dt)
         follower.body:applyForce(-200*x, -200*y)
     end
 
+    for _, body in pairs(world:getBodies()) do
+        local object = body:getFixtureList()[1]:getUserData()
+        object:update()
+    end
 
     -- Deprecatation pending!
     collide(dt)
@@ -261,7 +293,7 @@ function love.draw()
 
     -- draw wall
     for _, wall in pairs(walls) do
-        love.graphics.setColor(0.5, 0.5, 0.5, 1) -- set color of walls
+        love.graphics.setColor(wall.color.r, wall.color.g, wall.color.b, wall.color.a) -- set color of walls
         love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
     end
 
