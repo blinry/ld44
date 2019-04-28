@@ -11,6 +11,7 @@ Trap = require "trap"
 Door = require "door"
 require "helpers"
 Hole = require "hole"
+Bush = require "bush"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
@@ -62,6 +63,7 @@ function initGame()
     breadCrumbs = {}
     walls = {}
     holes = {}
+    bushes = {}
 
     love.physics.setMeter(100)
     world = love.physics.newWorld(0,0,true)
@@ -88,7 +90,12 @@ function initGame()
     buildWalls()
     buildTraps()
     buildHoles()
+    buildBushes()
 
+    -- this line needs to be customized depending on bush
+    for _, bush in pairs(bushes) do 
+        placeFollowersInBush(bush)
+    end
 end
 
 function beginContact(a, b, collision)
@@ -117,8 +124,8 @@ function buildWalls()
     buildWall(CANVAS_WIDTH-10, 0, 10, CANVAS_HEIGHT)
 
     buildWall(CANVAS_WIDTH/6, CANVAS_HEIGHT/2-5, CANVAS_WIDTH/6*4, 10)
-
     buildDoor(CANVAS_WIDTH/6, CANVAS_HEIGHT/2+5, 10, CANVAS_HEIGHT/2-5)
+
 end
 
 function buildWall(x, y, w, h)
@@ -135,6 +142,37 @@ end
 function buildHoles()
     buildHole(CANVAS_WIDTH*1/10, CANVAS_HEIGHT*1/10, CANVAS_WIDTH/10, CANVAS_HEIGHT/10)
 end
+
+function buildBushes()
+    buildBush()
+end
+
+function buildBush()
+    bush_pos = vector(CANVAS_WIDTH*3/10, CANVAS_HEIGHT*9/10)
+    height = CANVAS_HEIGHT/10
+    width = CANVAS_WIDTH/5
+    bush = Bush:new(bush_pos, width, height)
+    table.insert(bushes, bush)
+end
+
+function placeFollowersInBush(bush)
+    followerAcceleration = playerAcceleration / 2
+    followerLifePoints = 50
+    followerSpeed = 0
+    
+    for i = 1,5 do
+        local bush_x = bush.pos.x +  bush.width/2 + math.random(0, bush.width/5)
+        local bush_y = bush.pos.y + bush.height/2 + math.random(0, bush.height/5)
+        followerPos = vector(bush_x, bush_y)
+        follower = DynamicEntity:new(followerPos, followerSpeed, followerLifePoints)
+        follower.mobility = false
+        table.insert(followers, follower)
+        table.insert(bush.hiding_entities, follower)
+    end
+
+
+end
+
 
 function calculateOverlapBetweenHoleAndEntity(hole, movingObject)
     -- model entity and hole as square
@@ -217,8 +255,29 @@ function love.update(dt)
     end
 
     processHoleCollisions()
+    -- technically a misnomer - needs to be fully covered in bush
+    triggerHidingPigsInBushes()
+end
+
+function triggerHidingPigsInBushes()
+
+    for _, bush in pairs(bushes) do 
+        local dx = player:position().x - bush.pos.x
+        local dy = player:position().y - bush.pos.y
+        dist = math.sqrt ( dx * dx + dy * dy )
+        if dist < bush.detectionRadius then
+            -- careful with this line - implicit casting
+            for _, entity in pairs(bush.hiding_entities) do 
+                entity.mobility = true
+            end
+
+        end
+
+    end
 
 end
+
+
 
 function processHoleCollisions()
     follower_delete_list = nil
@@ -417,7 +476,11 @@ function love.draw()
     love.graphics.setColor(0.3, 0.3, 0.7, 1)
     love.graphics.rectangle("fill", 0, 0, CANVAS_WIDTH*player.lifePoints/playerLifePoints, 30)
 
-    
+    -- draw bushes
+    for _, bush in pairs(bushes) do
+        drawBush(bush)
+    end
+
 
     tlfres.endRendering()
 end
@@ -428,4 +491,28 @@ function drawCrumb(crumb)
 
     love.graphics.setColor(1, 1, 1, 0.8) -- set color of crumb drop
     love.graphics.draw(images.coin, crumb.pos.x, crumb.pos.y, 0, crumbScale, crumbScale, images.coin:getWidth()/2, images.coin:getHeight()/2)
+end
+
+function drawBush(bush)
+    love.graphics.setColor(0, 166, 0, 200) -- set color of crumb drop
+    love.graphics.rectangle("fill", bush.pos.x, bush.pos.y, bush.width, bush.height)
+    width_circles = width/bush.widthRadius - 1
+    height_circles = height/bush.heightRadius - 1
+    for i = 1,width_circles,1
+    do 
+       love.graphics.circle("fill", bush.pos.x + i * bush.widthRadius, bush.pos.y + bush.widthRadius/5, bush.widthRadius)
+       love.graphics.circle("fill", bush.pos.x + i * bush.widthRadius, bush.pos.y + bush.height + bush.widthRadius/5, bush.widthRadius)
+
+    end
+    for i = 1,height_circles,1
+    do 
+        love.graphics.circle("fill", bush.pos.x + bush.heightRadius/5, bush.pos.y + i* bush.heightRadius, bush.heightRadius)
+        love.graphics.circle("fill", bush.pos.x + bush.width + bush.heightRadius/5, bush.pos.y + i* bush.heightRadius, bush.heightRadius)
+   
+    end
+
+
+
+
+
 end
