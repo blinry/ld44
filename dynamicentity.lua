@@ -2,11 +2,14 @@
 local DynamicEntity = class("DynamicEntity", Entity)
 
 function DynamicEntity:initialize(pos, acceleration, lifePoints)
-
     Entity.initialize(self, pos, lifePoints)
+
     self.mobility = true
     self.acceleration = acceleration
     self.flip = 1
+
+    self.color = {r=1, g=1, b=1, a=1}
+
     self.body = love.physics.newBody(world, pos.x, pos.y, "dynamic")
     self.shape = love.physics.newCircleShape(self:radius())
     self.fixture = love.physics.newFixture(self.body, self.shape)

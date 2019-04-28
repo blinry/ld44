@@ -158,9 +158,8 @@ function buildWalls()
     buildWall(0, CANVAS_HEIGHT-10, CANVAS_WIDTH, 10)
     buildWall(CANVAS_WIDTH-10, 0, 10, CANVAS_HEIGHT)
 
-    buildWall(CANVAS_WIDTH/6, CANVAS_HEIGHT/2-5, CANVAS_WIDTH/6*4, 10)
-    buildDoor(CANVAS_WIDTH/6, CANVAS_HEIGHT/2+5, 10, CANVAS_HEIGHT/2-5)
-
+    buildWall(CANVAS_WIDTH/6, CANVAS_HEIGHT/2-5, CANVAS_WIDTH/6*4, 40)
+    buildDoor(CANVAS_WIDTH/6, CANVAS_HEIGHT/2+5, 40, CANVAS_HEIGHT/2-5)
 end
 
 function buildWall(x, y, w, h)
@@ -488,6 +487,7 @@ end
 function love.draw()
     love.graphics.setColor(1, 1, 1)
     tlfres.beginRendering(CANVAS_WIDTH, CANVAS_HEIGHT)
+    love.graphics.clear(0.8, 0.8, 0.7)
 
     -- draw wall
     for _, wall in pairs(walls) do
@@ -498,8 +498,9 @@ function love.draw()
     -- draw holes
     for _, hole in pairs(holes) do
         -- change color of holes later with fabrics
-        love.graphics.setColor(0, 0, 255, 1) -- set color of holes
-        love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
+        love.graphics.setColor(1, 1, 1, 1) -- set color of holes
+        -- love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
+        love.graphics.draw(images.hole, hole.pos.x, hole.pos.y, 0, hole.width/images.hole:getWidth(), hole.height/images.hole:getHeight())
     end
 
 
@@ -520,10 +521,11 @@ function love.draw()
     -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
     -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
 
+    -- draw followers
     for _, follower in pairs(followers) do
         local followerScale = follower:radius()/50
         local followerX, followerY = follower.body:getPosition()
-        love.graphics.setColor(1, 0.5, 0.5, 1)
+        love.graphics.setColor(follower.color.r, follower.color.g, follower.color.b, 1)
         if follower.currentlyHeld then
             love.graphics.setColor(0.5, 1, 0.5, 1)
         end
@@ -547,6 +549,7 @@ function love.draw()
     end
 
     -- draw pickups
+    love.graphics.setColor(1, 1, 1, 1)
     for _, pickup in pairs(pickups) do
         love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
     end
