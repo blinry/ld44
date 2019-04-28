@@ -5,6 +5,11 @@ local Entity = class('Entity')
 function Entity:initialize(pos, lifePoints)
   self.pos = pos
   self.lifePoints = lifePoints
+  self.attractiveness = attractiveness
+end
+
+function Entity:attractiveness()
+    return self.lifePoints
 end
 
 function Entity:position()

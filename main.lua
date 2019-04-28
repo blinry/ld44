@@ -318,7 +318,7 @@ function suckBreadCrumb(crumb, index, dt, follower)
         -- sounds.meow:setPitch(0.5+math.random())
         -- sounds.meow:play();
         table.remove(breadCrumbs, index)
-    else 
+    else
         local suckedLifePoints = 50 * dt
         crumb.lifePoints = crumb.lifePoints - suckedLifePoints
         follower.lifePoints = follower.lifePoints + suckedLifePoints
@@ -332,9 +332,11 @@ function findTarget(follower)
     table.insert(targets, player)
     for i,target in pairs(targets) do
         diff = target:position() - follower:position()
-        attractiveness = target.lifePoints/diff:len()
-        if attractiveness > currentHighestAttractiveness then
-            currentHighestAttractiveness = attractiveness
+        print("------")
+        print(target.class.name)
+        a = target:attractiveness()/diff:len()
+        if a > currentHighestAttractiveness then
+            currentHighestAttractiveness = a
             mostAttractiveTarget = target
         end
     end
@@ -371,8 +373,7 @@ function love.keypressed(key)
         isFullscreen = love.window.getFullscreen()
         love.window.setFullscreen(not isFullscreen)
     elseif key == "lctrl" then
-        currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()))
-        currentBreadCrumb.lifePoints = 0
+        currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), 0)
         table.insert(breadCrumbs, currentBreadCrumb)
     end
 end

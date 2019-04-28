@@ -17,6 +17,10 @@ function DynamicEntity:initialize(pos, acceleration, lifePoints)
     self.currentlyHeld = nil
 end
 
+function DynamicEntity:attractiveness()
+    return self.lifePoints/2
+end
+
 function DynamicEntity:update()
     -- flip graphics, if needed
     vx = self.body:getLinearVelocity()
