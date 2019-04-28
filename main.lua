@@ -284,9 +284,6 @@ function love.update(dt)
         currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()
         currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease
         player.lifePoints = player.lifePoints - lifeIncrease
-        if player.lifePoints <= 0 then
-            die()
-        end
     else
         if player.lifePoints < playerLifePoints then
             player.lifePoints = player.lifePoints + lifeIncrease/10
@@ -359,7 +356,7 @@ end
 function overlapFollowers(pos, r)
     for _, follower in pairs(followers) do
         local diff = pos - vector(follower.body:getPosition())
-        if diff:len() < r then
+        if diff:len() < r+follower:radius() then
             return follower
         end
     end

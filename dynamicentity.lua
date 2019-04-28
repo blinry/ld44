@@ -59,7 +59,7 @@ function DynamicEntity:position()
 end
 
 function DynamicEntity:radius()
-    return math.sqrt(self.lifePoints)*10
+    return math.pow(self.lifePoints,0.75)*3
 end
 
 return DynamicEntity
