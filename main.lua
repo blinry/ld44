@@ -6,6 +6,7 @@ class = require "lib.middleclass"
 Entity = require "entity"
 BreadCrumb = require "breadcrumb"
 Wall = require "wall"
+Trap = require "trap"
 require "helpers"
 
 CANVAS_WIDTH = 1920
@@ -72,8 +73,14 @@ end
 function initGame()
 
     wall_pos = vector(CANVAS_WIDTH/2 + CANVAS_WIDTH/4, CANVAS_HEIGHT/2 + CANVAS_HEIGHT/4)
-    wall = Wall:new(wall_pos, CANVAS_WIDTH/10, CANVAS_HEIGHT/10)
+    wall = Wall:new(wall_pos, CANVAS_WIDTH/20, CANVAS_HEIGHT/20)
     table.insert(walls, wall)
+
+    trap_pos = vector(CANVAS_WIDTH*9/10, CANVAS_HEIGHT*9/10)
+    trap = Trap:new(trap_pos, CANVAS_WIDTH/50)
+
+
+
 end
 
 function love.update(dt)
@@ -100,6 +107,14 @@ function collide(dt)
             -- table.remove(breadCrumbs, i)
         end
     end
+    local dx = trap.pos.x - follower.pos.x
+    local dy = trap.pos.y - follower.pos.y
+    dist = math.sqrt ( dx * dx + dy * dy )
+    follower_radius = 0 -- placeholder
+    if trap.radius > ( dist  + follower_radius) then
+        trap.gotFollower = true
+    end
+    
 end
 
 function suckBreadCrumb(crumb, index, dt) 
@@ -218,6 +233,15 @@ function love.draw()
         love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
     end
 
+    if trap.gotFollower == true then
+        -- change color to red
+        love.graphics.setColor(0,255,0,255)
+    else
+        -- change color to green
+        love.graphics.setColor(255, 0, 0, 255)
+    end
+    love.graphics.circle("fill", trap.pos.x, trap.pos.y, trap.radius)
+
     love.graphics.setColor(1, 1, 1, 1) -- set color of player
     local playerScale = math.sqrt(player.lifePoints/playerLifePoints)*2
     love.graphics.draw(images.child, player.pos.x, player.pos.y, 0, playerScale, playerScale, images.child:getWidth()/2, images.child:getHeight()/2)
@@ -232,6 +256,8 @@ function love.draw()
     if currentBreadCrumb then
         drawCrumb(currentBreadCrumb)
     end
+
+    
 
     tlfres.endRendering()
 end
