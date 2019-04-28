@@ -79,12 +79,14 @@ function initGame()
 
     followerAcceleration = playerAcceleration / 2
     followerLifePoints = 100
-    followerSpeed = CANVAS_WIDTH/(10)
+
 
     followers = {}
+    math.randomseed(os.time())
     for i = 1,3 do
         followerPos = vector(math.random(0, CANVAS_WIDTH), math.random(0, CANVAS_HEIGHT))
-        table.insert(followers, DynamicEntity:new(followerPos, followerSpeed, followerLifePoints/2))
+        variation = math.random(0, followerAcceleration/3)
+        table.insert(followers, DynamicEntity:new(followerPos, followerAcceleration+variation, followerLifePoints/2))
     end
 
     buildWalls()
@@ -390,8 +392,7 @@ end
 function follow(follower, target, dt)
     diff = target:position() - vector(follower.body:getPosition())
     nDiff = diff:normalized()
-    forceApplied = nDiff * followerAcceleration
-    -- follower.pos = follower.pos + (follower.speed * nDiff * dt)
+    forceApplied = nDiff * follower.acceleration
     follower.body:applyForce(forceApplied.x, forceApplied.y, 0, 0)
 end
 
