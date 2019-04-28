@@ -145,10 +145,10 @@ function calculateOverlapBetweenHoleAndEntity(hole, movingObject)
     holeBotRightX = holeTopLeftX + hole.width
     holeBotRightY = holeTopLeftY + hole.height
     movingObjectMidX, movingObjectMidY = movingObject:position().x, movingObject:position().y
-    movingObjectTopLeftX = movingObjectMidX - movingObject.radius
-    movingObjectTopLeftY = movingObjectMidY - movingObject.radius
-    movingObjectBottomRightX = movingObjectMidX + movingObject.radius
-    movingObjectBottomRightY = movingObjectMidY + movingObject.radius
+    movingObjectTopLeftX = movingObjectMidX - movingObject:radius()
+    movingObjectTopLeftY = movingObjectMidY - movingObject:radius()
+    movingObjectBottomRightX = movingObjectMidX + movingObject:radius()
+    movingObjectBottomRightY = movingObjectMidY + movingObject:radius()
 
 
     xOverlap = math.max(0, math.min(holeBotRightX, movingObjectBottomRightX) - math.max(holeTopLeftX, movingObjectTopLeftX));
@@ -223,6 +223,8 @@ function love.update(dt)
 
     local l = follower_delete_list
     while l do
+        follower = followers[l.value]
+        follower.body:destroy()
         table.remove(followers, l.value)
         l = l.next
       end

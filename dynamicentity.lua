@@ -7,9 +7,9 @@ function DynamicEntity:initialize(pos, speed, lifePoints)
 
     self.speed = speed
     self.flip = 1
-    self.radius = 50 -- refactor this later
+    self.shape_radius = 50 -- refactor this later
     self.body = love.physics.newBody(world, pos.x, pos.y, "dynamic")
-    self.shape = love.physics.newCircleShape(self.radius)
+    self.shape = love.physics.newCircleShape(self.shape_radius)
     self.fixture = love.physics.newFixture(self.body, self.shape)
     self.fixture:setFriction(0)
     self.fixture:setUserData(self)
