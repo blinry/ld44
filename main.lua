@@ -4,7 +4,7 @@ tlfres = require "lib.tlfres"
 
 class = require "lib.middleclass"
 Entity = require "entity"
-DynamicEntity = require "DynamicEntity"
+DynamicEntity = require "dynamicentity"
 BreadCrumb = require "breadcrumb"
 Wall = require "wall"
 require "helpers"
@@ -12,12 +12,11 @@ require "helpers"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
-crumbRadius = 5
+crumbRadius = 20
 currentBreadCrumb = nil
 
 breadCrumbs = {}
 walls = {}
-
 
 function love.load()
     math.randomseed(os.time())
@@ -68,7 +67,7 @@ function initGame()
     -- world:setCallback(handlingCollisions)
 
     playerLifePoints = 1000
-    playerAcceleration = 50000
+    playerAcceleration = 100000
     playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
     playerSpeed = CANVAS_WIDTH/5
     -- player = Entity:new(playerPos, playerSpeed, playerLifePoints)
@@ -99,11 +98,16 @@ function love.update(dt)
         follow(follower, target, dt)
     end
 
+    -- dampen follower
+    local x, y = follower.body:getLinearVelocity()
+    follower.body:applyForce(-200*x, -200*y)
+
     -- Deprecatation pending!
     collide(dt)
 
     if currentBreadCrumb then
         local lifeIncrease = 50*dt
+        currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
         currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease
         player.lifePoints = player.lifePoints - lifeIncrease
     end
@@ -111,7 +115,7 @@ end
 
 function collide(dt)
     for i,crumb in pairs(breadCrumbs) do
-        diff = crumb.pos - follower.pos
+        diff = crumb.pos - vector(follower.body:getPosition())
         if diff:len() < crumbRadius then
             suckBreadCrumb(crumb, i, dt)
             -- table.remove(breadCrumbs, i)
@@ -187,7 +191,7 @@ function movePlayer(dt)
     end
 
     local x,y = player.body:getLinearVelocity()
-    player.body:applyForce(-70*x, -70*y)
+    player.body:applyForce(-200*x, -200*y)
 end
 
 function love.mouse.getPosition()
@@ -226,8 +230,6 @@ function follow(follower, target, dt)
     forceApplied = nDiff * followerAcceleration
     -- follower.pos = follower.pos + (follower.speed * nDiff * dt)
     follower.body:applyForce(forceApplied.x, forceApplied.y, 0, 0)
-    local x, y = follower.body:getLinearVelocity()
-    follower.body:applyForce(-70*x, -70*y)
 end
 
 function love.draw()
