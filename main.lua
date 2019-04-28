@@ -9,6 +9,7 @@ BreadCrumb = require "breadcrumb"
 Wall = require "wall"
 Trap = require "trap"
 Door = require "door"
+Key = require "key"
 require "helpers"
 
 CANVAS_WIDTH = 1920
@@ -61,6 +62,7 @@ function initGame()
 
     breadCrumbs = {}
     walls = {}
+    pickups = {}
 
     love.physics.setMeter(100)
     world = love.physics.newWorld(0,0,true)
@@ -85,6 +87,8 @@ function initGame()
     end
 
     buildWalls()
+    key = Key:new(vector(CANVAS_WIDTH-100,100))
+    table.insert(pickups, key)
 end
 
 function beginContact(a, b, collision)
@@ -94,8 +98,12 @@ function beginContact(a, b, collision)
     local aClass = a:getUserData().class.name
     local bClass = b:getUserData().class.name
 
-    if aClass == "Door" then aObject.locked = false end
-    if bClass == "Door" then bObject.locked = false end
+    if aClass == "Door" and bClass == "DynamicEntity" and bObject.currentlyHeld
+        then aObject.locked = false
+    end
+    if bClass == "Door" and aClass == "DynamicEntity" and aObject.currentlyHeld
+        then aObject.locked = false
+    end
 
     -- if a:getUserData() and b:getUserData() then
     --     if a:getUserData().typ == "bubble" and b:getUserData().typ == "red" then
@@ -180,16 +188,29 @@ function die()
     initGame()
 end
 
-function collide(dt)
-    for i,crumb in pairs(breadCrumbs) do
-        for _, follower in pairs(followers) do
-            diff = crumb.pos - vector(follower.body:getPosition())
-            if diff:len() < crumb:radius() then
-                suckBreadCrumb(crumb, i, dt, follower)
-                -- table.remove(breadCrumbs, i)
-            end
+function overlapFollowers(pos, r)
+    for _, follower in pairs(followers) do
+        local diff = pos - vector(follower.body:getPosition())
+        if diff:len() < r then
+            return follower
         end
     end
+end
+
+function collide(dt)
+    for i,crumb in pairs(breadCrumbs) do
+        -- for _, follower in pairs(followers) do
+            -- diff = crumb.pos - vector(follower.body:getPosition())
+            -- if diff:len() < crumb:radius() then
+                -- suckBreadCrumb(crumb, i, dt, follower)
+                -- table.remove(breadCrumbs, i)
+            -- end
+        collided = overlapFollowers(crumb.pos, crumb:radius())
+        if collided then
+            suckBreadCrumb(crumb, i, dt, collided)
+        end
+    end
+
     -- This is the code to trigger traps and followers
     for _, follower in pairs(followers) do
         local followerX, followerY = follower.body:getPosition()
@@ -201,7 +222,14 @@ function collide(dt)
             trap.gotFollower = true
         end
     end
-    
+
+    for i, pickup in pairs(pickups) do
+        collided = overlapFollowers(pickup.pos, pickup:radius())
+        if collided then
+            table.remove(pickups, i)
+            collided.currentlyHeld = pickup
+        end
+    end
 end
 
 function suckBreadCrumb(crumb, index, dt, follower)
@@ -318,6 +346,9 @@ function love.draw()
         local followerScale = math.sqrt(follower.lifePoints/playerLifePoints)
         local followerX, followerY = follower.body:getPosition()
         love.graphics.setColor(1, 0.5, 0.5, 1)
+        if follower.currentlyHeld then
+            love.graphics.setColor(0.5, 1, 0.5, 1)
+        end
         love.graphics.draw(images.piggy, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
     end
 
@@ -330,7 +361,11 @@ function love.draw()
     love.graphics.setColor(0.3, 0.3, 0.7, 1)
     love.graphics.rectangle("fill", 0, 0, CANVAS_WIDTH*player.lifePoints/playerLifePoints, 30)
 
-    
+    -- draw pickups
+    for _, pickup in pairs(pickups) do
+        love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
+    end
+
 
     tlfres.endRendering()
 end

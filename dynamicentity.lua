@@ -14,6 +14,7 @@ function DynamicEntity:initialize(pos, speed, lifePoints)
     self.fixture:setUserData(self)
     --self.body:setInertia(100000)
     self.body:setMass(20)
+    self.currentlyHeld = nil
 end
 
 function DynamicEntity:update()
