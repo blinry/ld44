@@ -12,11 +12,6 @@ require "helpers"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
-currentBreadCrumb = nil
-
-breadCrumbs = {}
-walls = {}
-
 function love.load()
     math.randomseed(os.time())
 
@@ -60,12 +55,17 @@ function love.load()
 end
 
 function initGame()
+    currentBreadCrumb = nil
+
+    breadCrumbs = {}
+    walls = {}
+
     love.physics.setMeter(100)
     world = love.physics.newWorld(0,0,true)
     -- TODO: this is the callback that gets called for handling collisions
     -- world:setCallback(handlingCollisions)
 
-    playerLifePoints = 1000
+    playerLifePoints = 100
     playerAcceleration = 100000
     playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
     playerSpeed = CANVAS_WIDTH/5
@@ -77,11 +77,10 @@ function initGame()
     followerSpeed = CANVAS_WIDTH/(10)
 
     followers = {}
-    for i = 1,3 do
+    for i = 1,1 do
         followerPos = vector(math.random(0, CANVAS_WIDTH), math.random(0, CANVAS_HEIGHT))
         table.insert(followers, DynamicEntity:new(followerPos, followerSpeed, followerLifePoints))
     end
-
 
     buildWalls()
 end
@@ -120,12 +119,24 @@ function love.update(dt)
     -- Deprecatation pending!
     collide(dt)
 
+    local lifeIncrease = 50*dt
     if currentBreadCrumb then
-        local lifeIncrease = 50*dt
         currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
         currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease
         player.lifePoints = player.lifePoints - lifeIncrease
+        if player.lifePoints <= 0 then
+            die()
+        end
+    else
+        if player.lifePoints < playerLifePoints then
+            player.lifePoints = player.lifePoints + lifeIncrease/10
+        end
     end
+end
+
+function die()
+    currentBreadCrumb = nil
+    initGame()
 end
 
 function collide(dt)
@@ -199,14 +210,16 @@ function love.keypressed(key)
     elseif key == "lctrl" then
         currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()))
         currentBreadCrumb.lifePoints = 0
+        table.insert(breadCrumbs, currentBreadCrumb)
     end
 end
 
 function love.keyreleased(key)
     if key == "lctrl" then
-        currentBreadCrumb.pos = currentBreadCrumb.pos:clone()
-        table.insert(breadCrumbs, currentBreadCrumb)
-        currentBreadCrumb = nil
+        if currentBreadCrumb then
+            currentBreadCrumb.pos = currentBreadCrumb.pos:clone()
+            currentBreadCrumb = nil
+        end
     end
 end
 
@@ -239,15 +252,13 @@ function love.draw()
     for _, follower in pairs(followers) do
         local followerScale = math.sqrt(follower.lifePoints/playerLifePoints)*2
         local followerX, followerY = follower.body:getPosition()
-        love.graphics.draw(images.child, followerX, followerY, math.pi, followerScale, followerScale, images.child:getWidth()/2, images.child:getHeight()/2)
+        love.graphics.setColor(1, 0.5, 0.5, 1)
+        love.graphics.draw(images.child, followerX, followerY, 0, followerScale, followerScale, images.child:getWidth()/2, images.child:getHeight()/2)
     end
 
     -- draw crumbdrops
     for _, breadCrumb in pairs(breadCrumbs) do
         drawCrumb(breadCrumb)
-    end
-    if currentBreadCrumb then
-        drawCrumb(currentBreadCrumb)
     end
 
     -- draw health bars
