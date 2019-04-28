@@ -9,7 +9,7 @@ BreadCrumb = require "breadcrumb"
 Wall = require "wall"
 Trap = require "trap"
 require "helpers"
-
+Hole = require "hole"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
@@ -60,6 +60,7 @@ function initGame()
 
     breadCrumbs = {}
     walls = {}
+    holes = {}
 
     love.physics.setMeter(100)
     world = love.physics.newWorld(0,0,true)
@@ -84,6 +85,9 @@ function initGame()
     end
 
     buildWalls()
+    buildTraps()
+    buildHoles()
+
 end
 
 function buildWalls()
@@ -99,12 +103,44 @@ function buildWall(x, y, w, h)
     wall_pos = vector(x, y)
     wall = Wall:new(wall_pos, w, h)
     table.insert(walls, wall)
+end
 
+function buildTraps()
     trap_pos = vector(CANVAS_WIDTH*9/10, CANVAS_HEIGHT*9/10)
     trap = Trap:new(trap_pos, CANVAS_WIDTH/10)
+end
+
+function buildHoles()
+    buildHole(CANVAS_WIDTH*1/10, CANVAS_HEIGHT*1/10, CANVAS_WIDTH/10, CANVAS_HEIGHT/10)
+end
+
+function calculateOverlapBetweenHoleAndEntity(hole, movingObject)
+    -- model entity and hole as square
+    -- right now the assumption is that the moving thing is a circle
+
+    holeTopLeftX = hole.pos.x
+    holeTopLeftY = hole.pos.y
+    holeBotRightX = holeTopLeftX + hole.width
+    holeBotRightY = holeTopLeftY + hole.height
+    movingObjectMidX, movingObjectMidY = movingObject:position().x, movingObject:position().y
+    movingObjectTopLeftX = movingObjectMidX - movingObject.radius
+    movingObjectTopLeftY = movingObjectMidY - movingObject.radius
+    movingObjectBottomRightX = movingObjectMidX + movingObject.radius
+    movingObjectBottomRightY = movingObjectMidY + movingObject.radius
 
 
+    xOverlap = math.max(0, math.min(holeBotRightX, movingObjectBottomRightX) - math.max(holeTopLeftX, movingObjectTopLeftX));
+    yOverlap = math.max(0, math.min(holeBotRightY, movingObjectBottomRightY) - math.max(holeTopLeftY, movingObjectTopLeftY));
+    overlapArea = xOverlap * yOverlap
+    return overlapArea
+    -- return (area1 + area2 - areaI);
+end
 
+
+function buildHole(x, y, w, h)
+    hole_pos = vector(x, y)
+    hole = Hole:new(hole_pos, w, h)
+    table.insert(holes, hole)
 end
 
 function love.update(dt)
@@ -139,6 +175,24 @@ function love.update(dt)
             player.lifePoints = player.lifePoints + lifeIncrease/10
         end
     end
+
+    follower_delete_list = nil
+    for idx, follower in pairs(followers) do
+        for _, hole in pairs(holes) do
+            local pixelOverlap = calculateOverlapBetweenHoleAndEntity(hole, follower)
+            if pixelOverlap > 0 then
+                follower_delete_list = {next = follower_delete_list, value = idx}
+                break
+            end
+        end
+    end
+
+    local l = follower_delete_list
+    while l do
+        table.remove(followers, l.value)
+        l = l.next
+      end
+
 end
 
 function die()
@@ -264,6 +318,14 @@ function love.draw()
         love.graphics.setColor(0.5, 0.5, 0.5, 1) -- set color of walls
         love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
     end
+
+    -- draw holes
+    for _, hole in pairs(holes) do
+        -- change color of holes later with fabrics
+        love.graphics.setColor(0, 0, 255, 1) -- set color of holes
+        love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
+    end
+
 
     if trap.gotFollower == true then
         -- change color to red
