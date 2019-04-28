@@ -154,6 +154,7 @@ function love.update(dt)
         local object = body:getFixtureList()[1]:getUserData()
         object:update()
     end
+    player:update()
 
     -- Deprecatation pending!
     collide(dt)
@@ -161,6 +162,7 @@ function love.update(dt)
     local lifeIncrease = 50*dt
     if currentBreadCrumb then
         currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
+        currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()*10
         currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease
         player.lifePoints = player.lifePoints - lifeIncrease
         if player.lifePoints <= 0 then
@@ -306,16 +308,17 @@ function love.draw()
     end
     love.graphics.circle("fill", trap.pos.x, trap.pos.y, trap.radius)
 
+    -- draw player
     love.graphics.setColor(1, 1, 1, 1) -- set color of player
     local playerScale = math.sqrt(player.lifePoints/playerLifePoints)*2
     local playerX, playerY = player.body:getPosition()
-    love.graphics.draw(images.child, playerX, playerY, 0, playerScale, playerScale, images.child:getWidth()/2, images.child:getHeight()/2)
+    love.graphics.draw(images.piggy, playerX, playerY, 0, playerScale*player.flip, playerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
 
     for _, follower in pairs(followers) do
-        local followerScale = math.sqrt(follower.lifePoints/playerLifePoints)*2
+        local followerScale = math.sqrt(follower.lifePoints/playerLifePoints)
         local followerX, followerY = follower.body:getPosition()
         love.graphics.setColor(1, 0.5, 0.5, 1)
-        love.graphics.draw(images.child, followerX, followerY, 0, followerScale, followerScale, images.child:getWidth()/2, images.child:getHeight()/2)
+        love.graphics.draw(images.piggy, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
     end
 
     -- draw crumbdrops
@@ -333,7 +336,9 @@ function love.draw()
 end
 
 function drawCrumb(crumb)
-    love.graphics.setColor(crumb.color.r, crumb.color.g, crumb.color.b, 0.5) -- set color of crumb drop
-    local crumbScale = crumb:radius()
-    love.graphics.circle("fill", crumb.pos.x, crumb.pos.y, crumbScale)
+    local crumbScale = crumb:radius()/100
+    -- love.graphics.circle("fill", crumb.pos.x, crumb.pos.y, crumbScale)
+
+    love.graphics.setColor(1, 1, 1, 0.8) -- set color of crumb drop
+    love.graphics.draw(images.coin, crumb.pos.x, crumb.pos.y, 0, crumbScale, crumbScale, images.coin:getWidth()/2, images.coin:getHeight()/2)
 end
