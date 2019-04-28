@@ -12,7 +12,6 @@ require "helpers"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
-crumbRadius = 20
 currentBreadCrumb = nil
 
 breadCrumbs = {}
@@ -75,10 +74,13 @@ function initGame()
 
     followerAcceleration = playerAcceleration / 2
     followerLifePoints = 100
-    followerPos = vector(CANVAS_WIDTH/4, CANVAS_HEIGHT/4)
     followerSpeed = CANVAS_WIDTH/(10)
-    -- follower = Entity:new(followerPos, followerSpeed, followerScaleFactor)
-    follower = DynamicEntity:new(followerPos, followerSpeed, followerLifePoints)
+
+    followers = {}
+    for i = 1,3 do
+        followerPos = vector(math.random(0, CANVAS_WIDTH), math.random(0, CANVAS_HEIGHT))
+        table.insert(followers, DynamicEntity:new(followerPos, followerSpeed, followerLifePoints))
+    end
 
 
     buildWalls()
@@ -102,14 +104,18 @@ end
 function love.update(dt)
     world:update(dt)
     movePlayer(dt)
-    target = mostAttractiveCrumb()
-    if target then
-        follow(follower, target, dt)
+
+    for _, follower in pairs(followers) do
+        target = mostAttractiveCrumb(follower)
+        if target then
+            follow(follower, target, dt)
+        end
+
+        -- dampen follower
+        local x, y = follower.body:getLinearVelocity()
+        follower.body:applyForce(-200*x, -200*y)
     end
 
-    -- dampen follower
-    local x, y = follower.body:getLinearVelocity()
-    follower.body:applyForce(-200*x, -200*y)
 
     -- Deprecatation pending!
     collide(dt)
@@ -124,15 +130,17 @@ end
 
 function collide(dt)
     for i,crumb in pairs(breadCrumbs) do
-        diff = crumb.pos - vector(follower.body:getPosition())
-        if diff:len() < crumbRadius then
-            suckBreadCrumb(crumb, i, dt)
-            -- table.remove(breadCrumbs, i)
+        for _, follower in pairs(followers) do
+            diff = crumb.pos - vector(follower.body:getPosition())
+            if diff:len() < crumb:radius() then
+                suckBreadCrumb(crumb, i, dt, follower)
+                -- table.remove(breadCrumbs, i)
+            end
         end
     end
 end
 
-function suckBreadCrumb(crumb, index, dt) 
+function suckBreadCrumb(crumb, index, dt, follower)
     if crumb.lifePoints <= 0 then
         -- TODO: find sucking sounds
         -- sounds.meow:setPitch(0.5+math.random())
@@ -145,35 +153,7 @@ function suckBreadCrumb(crumb, index, dt)
     end
 end
 
-function nearestObject()
-    diffToPlayer = (vector(player.body:getPosition()) - vector(follower.body:getPosition())):len()
-    closeCrumb = nearestCrumb()
-
-    if closeCrumb == nil then
-        return player
-    end
-
-    diffToClosestCrumb = (vector(follower.body:getPosition()) - nearestCrumb().pos):len()
-    if diffToPlayer < diffToClosestCrumb then
-        return player
-    end
-    return nearestCrumb()
-end
-
-function nearestCrumb()
-    currentSmallest = 100000
-    closestCrumb = nil
-    for i,crumb in pairs(breadCrumbs) do
-        diff = crumb.pos - vector(follower.body:getPosition())
-        if diff:len() < currentSmallest and crumb:radius() > diff:len() then
-            currentSmallest = diff:len()
-            closestCrumb = crumb
-        end
-    end
-    return closestCrumb
-end
-
-function mostAttractiveCrumb()
+function mostAttractiveCrumb(follower)
     local currentHighestAttractiveness = 0
     local mostAttractiveCrumb = nil
     for i,crumb in pairs(breadCrumbs) do
@@ -256,9 +236,11 @@ function love.draw()
     local playerX, playerY = player.body:getPosition()
     love.graphics.draw(images.child, playerX, playerY, 0, playerScale, playerScale, images.child:getWidth()/2, images.child:getHeight()/2)
 
-    local followerScale = math.sqrt(follower.lifePoints/playerLifePoints)*2
-    local followerX, followerY = follower.body:getPosition()
-    love.graphics.draw(images.child, followerX, followerY, math.pi, followerScale, followerScale, images.child:getWidth()/2, images.child:getHeight()/2)
+    for _, follower in pairs(followers) do
+        local followerScale = math.sqrt(follower.lifePoints/playerLifePoints)*2
+        local followerX, followerY = follower.body:getPosition()
+        love.graphics.draw(images.child, followerX, followerY, math.pi, followerScale, followerScale, images.child:getWidth()/2, images.child:getHeight()/2)
+    end
 
     -- draw crumbdrops
     for _, breadCrumb in pairs(breadCrumbs) do
@@ -271,8 +253,6 @@ function love.draw()
     -- draw health bars
     love.graphics.setColor(0.3, 0.3, 0.7, 1)
     love.graphics.rectangle("fill", 0, 0, CANVAS_WIDTH*player.lifePoints/playerLifePoints, 30)
-    love.graphics.setColor(0.3, 0.3, 0.7, 1)
-    love.graphics.rectangle("fill", 0, CANVAS_HEIGHT-30, CANVAS_WIDTH*follower.lifePoints/playerLifePoints, 30)
 
     tlfres.endRendering()
 end
