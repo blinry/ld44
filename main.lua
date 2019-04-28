@@ -84,7 +84,7 @@ function initGame()
     followers = {}
     for i = 1,3 do
         followerPos = vector(math.random(0, CANVAS_WIDTH), math.random(0, CANVAS_HEIGHT))
-        table.insert(followers, DynamicEntity:new(followerPos, followerSpeed, followerLifePoints))
+        table.insert(followers, DynamicEntity:new(followerPos, followerSpeed, followerLifePoints/2))
     end
 
     buildWalls()
@@ -211,7 +211,7 @@ function love.update(dt)
     local lifeIncrease = 50*dt
     if currentBreadCrumb then
         currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
-        currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()*10
+        currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()
         currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease
         player.lifePoints = player.lifePoints - lifeIncrease
         if player.lifePoints <= 0 then
@@ -424,18 +424,22 @@ function love.draw()
 
     -- draw player
     love.graphics.setColor(1, 1, 1, 1) -- set color of player
-    local playerScale = math.sqrt(player.lifePoints/playerLifePoints)*2
+    local playerScale = player:radius()/50
     local playerX, playerY = player.body:getPosition()
     love.graphics.draw(images.piggy, playerX, playerY, 0, playerScale*player.flip, playerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+    -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
+    -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
 
     for _, follower in pairs(followers) do
-        local followerScale = math.sqrt(follower.lifePoints/playerLifePoints)
+        local followerScale = follower:radius()/50
         local followerX, followerY = follower.body:getPosition()
         love.graphics.setColor(1, 0.5, 0.5, 1)
         if follower.currentlyHeld then
             love.graphics.setColor(0.5, 1, 0.5, 1)
         end
         love.graphics.draw(images.piggy, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
+        -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
     end
 
     -- draw crumbdrops
@@ -451,7 +455,6 @@ function love.draw()
     for _, pickup in pairs(pickups) do
         love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
     end
-
 
     tlfres.endRendering()
 end

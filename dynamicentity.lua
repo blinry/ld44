@@ -7,9 +7,8 @@ function DynamicEntity:initialize(pos, speed, lifePoints)
     self.mobility = true
     self.speed = speed
     self.flip = 1
-    self.shape_radius = 50 -- refactor this later
     self.body = love.physics.newBody(world, pos.x, pos.y, "dynamic")
-    self.shape = love.physics.newCircleShape(self.shape_radius)
+    self.shape = love.physics.newCircleShape(self:radius())
     self.fixture = love.physics.newFixture(self.body, self.shape)
     self.fixture:setFriction(0)
     self.fixture:setUserData(self)
@@ -19,12 +18,32 @@ function DynamicEntity:initialize(pos, speed, lifePoints)
 end
 
 function DynamicEntity:update()
+    -- flip graphics, if needed
     vx = self.body:getLinearVelocity()
     if vx >= 20 then
         self.flip = 1
     end
     if vx <= -20 then
         self.flip = -1
+    end
+
+    if math.abs(self:radius() - self.shape:getRadius()) > 5 then
+        -- update the radius
+        local pos = self:position()
+        local velocityX, velocityY = self.body:getLinearVelocity()
+
+        self.fixture:destroy()
+        self.body:destroy()
+
+        self.body = love.physics.newBody(world, pos.x, pos.y, "dynamic")
+        self.shape = love.physics.newCircleShape(self:radius())
+        self.fixture = love.physics.newFixture(self.body, self.shape)
+        self.fixture:setFriction(0)
+        self.fixture:setUserData(self)
+        --self.body:setInertia(100000)
+        self.body:setMass(20)
+
+        self.body:setLinearVelocity(velocityX, velocityY)
     end
 end
 
@@ -33,7 +52,7 @@ function DynamicEntity:position()
 end
 
 function DynamicEntity:radius()
-    return math.sqrt(self.lifePoints)
+    return math.sqrt(self.lifePoints)*10
 end
 
 return DynamicEntity
