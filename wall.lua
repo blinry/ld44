@@ -10,7 +10,7 @@ function Wall:initialize(pos, width, height)
     self.height = height
 
     self.body = love.physics.newBody(world, pos.x, pos.y, "static")
-    self.shape = love.physics.newRectangleShape(width, height)
+    self.shape = love.physics.newRectangleShape(width/2, height/2, width, height)
     self.fixture = love.physics.newFixture(self.body, self.shape)
     self.fixture:setFriction(0)
 end

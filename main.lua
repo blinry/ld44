@@ -74,19 +74,28 @@ function initGame()
     player = DynamicEntity:new(playerPos, playerSpeed, playerLifePoints)
 
     followerAcceleration = playerAcceleration / 2
-    followerScaleFactor = 0.5
+    followerLifePoints = 100
     followerPos = vector(CANVAS_WIDTH/4, CANVAS_HEIGHT/4)
     followerSpeed = CANVAS_WIDTH/(10)
     -- follower = Entity:new(followerPos, followerSpeed, followerScaleFactor)
-    follower = DynamicEntity:new(followerPos, followerSpeed, followerScaleFactor)
+    follower = DynamicEntity:new(followerPos, followerSpeed, followerLifePoints)
 
 
     buildWalls()
 end
 
 function buildWalls()
-    wall_pos = vector(CANVAS_WIDTH/2 + CANVAS_WIDTH/4, CANVAS_HEIGHT/2 + CANVAS_HEIGHT/4)
-    wall = Wall:new(wall_pos, CANVAS_WIDTH/10, CANVAS_HEIGHT/10)
+    buildWall(0, 0, CANVAS_WIDTH, 10)
+    buildWall(0, 0, 10, CANVAS_HEIGHT)
+    buildWall(0, CANVAS_HEIGHT-10, CANVAS_WIDTH, 10)
+    buildWall(CANVAS_WIDTH-10, 0, 10, CANVAS_HEIGHT)
+
+    buildWall(CANVAS_WIDTH/6, CANVAS_HEIGHT/2-5, CANVAS_WIDTH/6*4, 10)
+end
+
+function buildWall(x, y, w, h)
+    wall_pos = vector(x, y)
+    wall = Wall:new(wall_pos, w, h)
     table.insert(walls, wall)
 end
 
@@ -130,7 +139,9 @@ function suckBreadCrumb(crumb, index, dt)
         -- sounds.meow:play();
         table.remove(breadCrumbs, index)
     else 
-        crumb.lifePoints = crumb.lifePoints - (50 * dt)
+        local suckedLifePoints = 50 * dt
+        crumb.lifePoints = crumb.lifePoints - suckedLifePoints
+        follower.lifePoints = follower.lifePoints + suckedLifePoints
     end
 end
 
@@ -205,14 +216,14 @@ function love.keypressed(key)
     elseif key == "f" then
         isFullscreen = love.window.getFullscreen()
         love.window.setFullscreen(not isFullscreen)
-    elseif key == "space" then
+    elseif key == "lctrl" then
         currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()))
         currentBreadCrumb.lifePoints = 0
     end
 end
 
 function love.keyreleased(key)
-    if key == "space" then
+    if key == "lctrl" then
         currentBreadCrumb.pos = currentBreadCrumb.pos:clone()
         table.insert(breadCrumbs, currentBreadCrumb)
         currentBreadCrumb = nil
@@ -220,8 +231,6 @@ function love.keyreleased(key)
 end
 
 function love.mousepressed(x, y, button)
-    sounds.meow:setPitch(0.5+math.random())
-    sounds.meow:play()
 end
 
 function follow(follower, target, dt)
@@ -238,7 +247,7 @@ function love.draw()
 
     -- draw wall
     for _, wall in pairs(walls) do
-        love.graphics.setColor(0, 1, 0, 1) -- set color of walls
+        love.graphics.setColor(0.5, 0.5, 0.5, 1) -- set color of walls
         love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
     end
 
@@ -247,7 +256,7 @@ function love.draw()
     local playerX, playerY = player.body:getPosition()
     love.graphics.draw(images.child, playerX, playerY, 0, playerScale, playerScale, images.child:getWidth()/2, images.child:getHeight()/2)
 
-    local followerScale = math.sqrt(follower.lifePoints)
+    local followerScale = math.sqrt(follower.lifePoints/playerLifePoints)*2
     local followerX, followerY = follower.body:getPosition()
     love.graphics.draw(images.child, followerX, followerY, math.pi, followerScale, followerScale, images.child:getWidth()/2, images.child:getHeight()/2)
 
@@ -258,6 +267,12 @@ function love.draw()
     if currentBreadCrumb then
         drawCrumb(currentBreadCrumb)
     end
+
+    -- draw health bars
+    love.graphics.setColor(0.3, 0.3, 0.7, 1)
+    love.graphics.rectangle("fill", 0, 0, CANVAS_WIDTH*player.lifePoints/playerLifePoints, 30)
+    love.graphics.setColor(0.3, 0.3, 0.7, 1)
+    love.graphics.rectangle("fill", 0, CANVAS_HEIGHT-30, CANVAS_WIDTH*follower.lifePoints/playerLifePoints, 30)
 
     tlfres.endRendering()
 end
