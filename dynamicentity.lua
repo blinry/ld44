@@ -18,6 +18,10 @@ function DynamicEntity:initialize(pos, acceleration, lifePoints)
     self.currentlyHeld = nil
 end
 
+function DynamicEntity:attractiveness()
+    return self.lifePoints/2
+end
+
 function DynamicEntity:update()
     vx = self.body:getLinearVelocity()
     if vx >= 20 then
