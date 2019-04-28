@@ -77,7 +77,7 @@ function initGame()
     followerSpeed = CANVAS_WIDTH/(10)
 
     followers = {}
-    for i = 1,1 do
+    for i = 1,3 do
         followerPos = vector(math.random(0, CANVAS_WIDTH), math.random(0, CANVAS_HEIGHT))
         table.insert(followers, DynamicEntity:new(followerPos, followerSpeed, followerLifePoints))
     end
@@ -105,7 +105,7 @@ function love.update(dt)
     movePlayer(dt)
 
     for _, follower in pairs(followers) do
-        target = mostAttractiveCrumb(follower)
+        target = findTarget(follower)
         if target then
             follow(follower, target, dt)
         end
@@ -164,18 +164,20 @@ function suckBreadCrumb(crumb, index, dt, follower)
     end
 end
 
-function mostAttractiveCrumb(follower)
+function findTarget(follower)
     local currentHighestAttractiveness = 0
-    local mostAttractiveCrumb = nil
-    for i,crumb in pairs(breadCrumbs) do
-        diff = crumb.pos - vector(follower.body:getPosition()) 
-        attractiveness = crumb.lifePoints/diff:len()
+    local mostAttractiveTarget = nil
+    local targets = table.shallow_copy(breadCrumbs)
+    table.insert(targets, player)
+    for i,target in pairs(targets) do
+        diff = target:position() - follower:position()
+        attractiveness = target.lifePoints/diff:len()
         if attractiveness > currentHighestAttractiveness then
             currentHighestAttractiveness = attractiveness
-            mostAttractiveCrumb = crumb
+            mostAttractiveTarget = target
         end
     end
-    return mostAttractiveCrumb
+    return mostAttractiveTarget
 end
 
 function movePlayer(dt)
@@ -227,7 +229,7 @@ function love.mousepressed(x, y, button)
 end
 
 function follow(follower, target, dt)
-    diff = target.pos - vector(follower.body:getPosition())
+    diff = target:position() - vector(follower.body:getPosition())
     nDiff = diff:normalized()
     forceApplied = nDiff * followerAcceleration
     -- follower.pos = follower.pos + (follower.speed * nDiff * dt)

@@ -9,7 +9,11 @@ function DynamicEntity:initialize(pos, speed, lifePoints)
     self.fixture = love.physics.newFixture(self.body, self.shape)
     self.fixture:setFriction(0)
     --self.body:setInertia(100000)
-    self.body:setMass(50)
+    self.body:setMass(20)
+end
+
+function DynamicEntity:position()
+    return vector(self.body:getPosition())
 end
 
 return DynamicEntity
