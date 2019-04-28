@@ -4,7 +4,7 @@ local DynamicEntity = class("DynamicEntity", Entity)
 function DynamicEntity:initialize(pos, speed, lifePoints)
 
     Entity.initialize(self, pos, lifePoints)
-
+    self.mobility = true
     self.speed = speed
     self.flip = 1
     self.shape_radius = 50 -- refactor this later

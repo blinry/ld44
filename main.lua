@@ -177,13 +177,19 @@ function love.update(dt)
 
     for _, follower in pairs(followers) do
         target = findTarget(follower)
-        if target then
-            follow(follower, target, dt)
+        if follower.mobility == false then
+            --- If the pig has been immobilized, then don't move them
+            follower.body:setLinearVelocity(0,0)
+        else
+            if target then
+                follow(follower, target, dt)
+            end
+
+            -- dampen follower
+            local x, y = follower.body:getLinearVelocity()
+            follower.body:applyForce(-200*x, -200*y)
         end
 
-        -- dampen follower
-        local x, y = follower.body:getLinearVelocity()
-        follower.body:applyForce(-200*x, -200*y)
     end
 
     for _, body in pairs(world:getBodies()) do
@@ -210,6 +216,11 @@ function love.update(dt)
         end
     end
 
+    processHoleCollisions()
+
+end
+
+function processHoleCollisions()
     follower_delete_list = nil
     for idx, follower in pairs(followers) do
         for _, hole in pairs(holes) do
@@ -227,9 +238,20 @@ function love.update(dt)
         follower.body:destroy()
         table.remove(followers, l.value)
         l = l.next
-      end
+    end
+
+    for _, hole in pairs(holes) do
+        local pixelOverlap = calculateOverlapBetweenHoleAndEntity(hole, player)
+        if pixelOverlap > 0 then
+            die()
+        end
+    end
 
 end
+
+
+
+
 
 function die()
     currentBreadCrumb = nil
@@ -254,6 +276,7 @@ function collide(dt)
         dist = math.sqrt ( dx * dx + dy * dy )
         follower_radius = 0 -- placeholder
         if trap.radius > ( dist  + follower_radius) then
+            follower.mobility = false
             trap.gotFollower = true
         end
     end
