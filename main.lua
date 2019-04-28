@@ -10,6 +10,8 @@ Wall = require "wall"
 Trap = require "trap"
 Door = require "door"
 Key = require "key"
+Player = require "player"
+Follower = require "follower"
 require "helpers"
 Hole = require "hole"
 CANVAS_WIDTH = 1920
@@ -68,17 +70,17 @@ function initGame()
     love.physics.setMeter(100)
     world = love.physics.newWorld(0,0,true)
     -- TODO: this is the callback that gets called for handling collisions
-    world:setCallbacks(beginContact)
+    world:setCallbacks(beginContact, endContact)
 
-    playerLifePoints = 100
+    playerLifePoints = 50
     playerAcceleration = 100000
     playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
     playerSpeed = CANVAS_WIDTH/5
     -- player = Entity:new(playerPos, playerSpeed, playerLifePoints)
-    player = DynamicEntity:new(playerPos, playerSpeed, playerLifePoints)
+    player = Player:new(playerPos, playerSpeed, playerLifePoints)
 
     followerAcceleration = playerAcceleration / 2
-    followerLifePoints = 100
+    followerLifePoints = playerLifePoints
 
 
     followers = {}
@@ -86,7 +88,7 @@ function initGame()
     for i = 1,3 do
         followerPos = vector(math.random(0, CANVAS_WIDTH), math.random(0, CANVAS_HEIGHT))
         variation = math.random(0, followerAcceleration/3)
-        table.insert(followers, DynamicEntity:new(followerPos, followerAcceleration+variation, followerLifePoints/2))
+        table.insert(followers, Follower:new(followerPos, followerAcceleration+variation, followerLifePoints/2))
     end
 
     buildWalls()
@@ -94,6 +96,22 @@ function initGame()
     table.insert(pickups, key)
     buildTraps()
     buildHoles()
+end
+
+function endContact(a, b, collision)
+    local aObject = a:getUserData()
+    local bObject = b:getUserData()
+
+    local aClass = a:getUserData().class.name
+    local bClass = b:getUserData().class.name
+
+    if bClass == "Follower" and aClass == "Player" then
+        aObject.beingDamaged = aObject.beingDamaged - 1
+    end
+    if aClass == "Follower" and bClass == "Player" then
+        bObject.beingDamaged = bObject.beingDamaged - 1
+    end
+
 end
 
 function beginContact(a, b, collision)
@@ -108,6 +126,14 @@ function beginContact(a, b, collision)
     end
     if bClass == "Door" and aClass == "DynamicEntity" and aObject.currentlyHeld
         then aObject.locked = false
+    end
+
+
+    if bClass == "Follower" and aClass == "Player" then
+        aObject.beingDamaged = aObject.beingDamaged + 1
+    end
+    if aClass == "Follower" and bClass == "Player" then
+        bObject.beingDamaged = bObject.beingDamaged + 1
     end
 
     -- if a:getUserData() and b:getUserData() then
@@ -183,6 +209,7 @@ end
 function love.update(dt)
     world:update(dt)
     movePlayer(dt)
+    local lifeIncrease = 50*dt
 
     for _, follower in pairs(followers) do
         target = findTarget(follower)
@@ -206,11 +233,13 @@ function love.update(dt)
         object:update()
     end
     player:update()
+    if player.beingDamaged > 0 then
+        player.lifePoints = player.lifePoints - lifeIncrease * 1.75
+    end
 
     -- Deprecatation pending!
     collide(dt)
 
-    local lifeIncrease = 50*dt
     if currentBreadCrumb then
         currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
         currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()
@@ -332,8 +361,6 @@ function findTarget(follower)
     table.insert(targets, player)
     for i,target in pairs(targets) do
         diff = target:position() - follower:position()
-        print("------")
-        print(target.class.name)
         a = target:attractiveness()/diff:len()
         if a > currentHighestAttractiveness then
             currentHighestAttractiveness = a
