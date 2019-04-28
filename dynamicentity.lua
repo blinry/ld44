@@ -1,11 +1,11 @@
 -- NOTE: class, Entity are not required since they are globablly defined in main.lua
 local DynamicEntity = class("DynamicEntity", Entity)
 
-function DynamicEntity:initialize(pos, speed, lifePoints)
+function DynamicEntity:initialize(pos, acceleration, lifePoints)
 
     Entity.initialize(self, pos, lifePoints)
     self.mobility = true
-    self.speed = speed
+    self.acceleration = acceleration
     self.flip = 1
     self.shape_radius = 50 -- refactor this later
     self.body = love.physics.newBody(world, pos.x, pos.y, "dynamic")
