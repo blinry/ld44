@@ -18,6 +18,7 @@ Bush = require "bush"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
+state = "title"
 currentLevel = 1
 
 function love.load()
@@ -53,7 +54,7 @@ function love.load()
     for i,filename in pairs(love.filesystem.getDirectoryItems("fonts")) do
         if filename ~= ".gitkeep" then
             fonts[filename:sub(1,-5)] = {}
-            for fontsize=50,100 do
+            for fontsize=50,150 do
                 fonts[filename:sub(1,-5)][fontsize] = love.graphics.newFont("fonts/"..filename, fontsize)
             end
         end
@@ -604,24 +605,38 @@ function love.mouse.getPosition()
 end
 
 function love.keypressed(key)
-    gamePaused = false
-
-    if key == "escape" then
-        love.window.setFullscreen(false)
-        love.event.quit()
-    elseif key == "f" then
-        isFullscreen = love.window.getFullscreen()
-        love.window.setFullscreen(not isFullscreen)
-    elseif key == "r" then
-        die()
-    elseif string.find(key, "%d") then
-        initLevel(tonumber(key))
-    elseif key == "lctrl" then
-        local crumbLifePoints = 10
-        if player.lifePoints > crumbLifePoints then
-            local currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), crumbLifePoints)
-            table.insert(breadCrumbs, currentBreadCrumb)
-            player.lifePoints = player.lifePoints - crumbLifePoints
+    if state == "title" then
+        if key == "escape" then
+            love.window.setFullscreen(false)
+            love.event.quit()
+        else
+            state = "game"
+        end
+    else
+        if gamePaused then
+            if key == "space" then
+                gamePaused = false
+            elseif key == "escape" then
+                state = "title"
+            end
+        else
+            if key == "escape" then
+                state = "title"
+            elseif key == "f" then
+                isFullscreen = love.window.getFullscreen()
+                love.window.setFullscreen(not isFullscreen)
+            elseif key == "r" then
+                die()
+            elseif string.find(key, "%d") then
+                initLevel(tonumber(key))
+            elseif key == "lctrl" then
+                local crumbLifePoints = 10
+                if player.lifePoints > crumbLifePoints then
+                    local currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), crumbLifePoints)
+                    table.insert(breadCrumbs, currentBreadCrumb)
+                    player.lifePoints = player.lifePoints - crumbLifePoints
+                end
+            end
         end
     end
 end
@@ -650,92 +665,102 @@ function love.draw()
     tlfres.beginRendering(CANVAS_WIDTH, CANVAS_HEIGHT)
     love.graphics.clear(0.8, 0.8, 0.7)
 
-    -- draw wall
-    for _, wall in pairs(walls) do
-        love.graphics.setColor(wall.color.r, wall.color.g, wall.color.b, wall.color.a) -- set color of walls
-        love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
-    end
+    if state == "title" then
+        -- todo
+        love.graphics.setColor(0.2, 0.2, 0.2)
+        love.graphics.setFont(fonts.vollkorn[150])
+        love.graphics.printf("Piggy's Escape", 0, 100, CANVAS_WIDTH, "center")
 
-    -- draw holes
-    for _, hole in pairs(holes) do
-        -- change color of holes later with fabrics
-        love.graphics.setColor(0, 0, 0, 1) -- set color of holes
-        love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
-        love.graphics.draw(images.hole, hole.pos.x, hole.pos.y, 0, hole.width/images.hole:getWidth(), hole.height/images.hole:getHeight())
-    end
-
-
-    if trap.gotFollower == true then
-        -- change color to red
-        love.graphics.setColor(0,255,0,255)
+        love.graphics.setFont(fonts.vollkorn[50])
+        love.graphics.printf("Made in 72 hours\nfor Ludum Dare 44\n\nby Agustín Ramos Anzorena, Alan Chu,\n Byung Shin, Sebastian Morr, and Tim Vieregge\n\n\nPress any key to start!", 0, 100+300, CANVAS_WIDTH, "center")
     else
-        -- change color to green
-        love.graphics.setColor(255, 0, 0, 255)
-    end
-    love.graphics.circle("fill", trap.pos.x, trap.pos.y, trap.radius)
+        -- draw wall
+        for _, wall in pairs(walls) do
+            love.graphics.setColor(wall.color.r, wall.color.g, wall.color.b, wall.color.a) -- set color of walls
+            love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
+        end
 
-    -- draw player
-    love.graphics.setColor(1, 1, 1, 1) -- set color of player
-    if player.currentlyHeld then
-        love.graphics.setColor(0.5, 1, 0.5, 1)
-    end
-    local playerScale = math.max(player:radius()/50, 0.2)
-    local playerX, playerY = player.body:getPosition()
-    love.graphics.draw(images.piggy, playerX, playerY, 0, playerScale*player.flip, playerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
-    -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
-    -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
+        -- draw holes
+        for _, hole in pairs(holes) do
+            -- change color of holes later with fabrics
+            love.graphics.setColor(0, 0, 0, 1) -- set color of holes
+            love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
+            love.graphics.draw(images.hole, hole.pos.x, hole.pos.y, 0, hole.width/images.hole:getWidth(), hole.height/images.hole:getHeight())
+        end
 
-    -- draw followers
-    for _, follower in pairs(followers) do
-        local followerScale = follower:radius()/50
-        local followerX, followerY = follower.body:getPosition()
-        love.graphics.setColor(follower.color.r, follower.color.g, follower.color.b, 1)
-        if follower.currentlyHeld then
+
+        if trap.gotFollower == true then
+            -- change color to red
+            love.graphics.setColor(0,255,0,255)
+        else
+            -- change color to green
+            love.graphics.setColor(255, 0, 0, 255)
+        end
+        love.graphics.circle("fill", trap.pos.x, trap.pos.y, trap.radius)
+
+        -- draw player
+        love.graphics.setColor(1, 1, 1, 1) -- set color of player
+        if player.currentlyHeld then
             love.graphics.setColor(0.5, 1, 0.5, 1)
         end
-        love.graphics.draw(images.piggy, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        local playerScale = math.max(player:radius()/50, 0.2)
+        local playerX, playerY = player.body:getPosition()
+        love.graphics.draw(images.piggy, playerX, playerY, 0, playerScale*player.flip, playerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
         -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
-        -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
-    end
+        -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
 
-    -- draw crumbdrops
-    for _, breadCrumb in pairs(breadCrumbs) do
-        drawCrumb(breadCrumb)
-    end
-
-    -- draw health bars
-    love.graphics.setColor(0.3, 0.3, 0.7, 1)
-    love.graphics.rectangle("fill", 0, 0, CANVAS_WIDTH*player.lifePoints/playerLifePoints, 30)
-
-    -- draw bushes
-    for _, bush in pairs(bushes) do
-        drawBush(bush)
-    end
-
-    -- draw pickups
-    love.graphics.setColor(1, 1, 1, 1)
-    for _, pickup in pairs(pickups) do
-        love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
-    end
-
-    -- draw intro text
-    if gamePaused and (description ~= "" or reasonOfDeath ~= "") then
-        love.graphics.setColor(0.7, 0.7, 0.7, 0.8)
-        local border = CANVAS_HEIGHT/5
-        love.graphics.rectangle("fill", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
-        love.graphics.setLineWidth(5)
-        love.graphics.setColor(0.2, 0.2, 0.2, 1)
-        love.graphics.rectangle("line", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
-
-        local text = ""
-        if reasonOfDeath then
-            text = reasonOfDeath .. "\n\nPress any key to try again."
-        else
-            text = description
+        -- draw followers
+        for _, follower in pairs(followers) do
+            local followerScale = follower:radius()/50
+            local followerX, followerY = follower.body:getPosition()
+            love.graphics.setColor(follower.color.r, follower.color.g, follower.color.b, 1)
+            if follower.currentlyHeld then
+                love.graphics.setColor(0.5, 1, 0.5, 1)
+            end
+            love.graphics.draw(images.piggy, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+            -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
+            -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
         end
 
-        love.graphics.setColor(0.2, 0.2, 0.2, 1)
-        love.graphics.printf(text, border*1.5, border*1.5, CANVAS_WIDTH-3*border, "center")
+        -- draw crumbdrops
+        for _, breadCrumb in pairs(breadCrumbs) do
+            drawCrumb(breadCrumb)
+        end
+
+        -- draw health bars
+        love.graphics.setColor(0.3, 0.3, 0.7, 1)
+        love.graphics.rectangle("fill", 0, 0, CANVAS_WIDTH*player.lifePoints/playerLifePoints, 30)
+
+        -- draw bushes
+        for _, bush in pairs(bushes) do
+            drawBush(bush)
+        end
+
+        -- draw pickups
+        love.graphics.setColor(1, 1, 1, 1)
+        for _, pickup in pairs(pickups) do
+            love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
+        end
+
+        -- draw intro text
+        if gamePaused and (description ~= "" or reasonOfDeath ~= "") then
+            love.graphics.setColor(0.7, 0.7, 0.7, 0.8)
+            local border = CANVAS_HEIGHT/5
+            love.graphics.rectangle("fill", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
+            love.graphics.setLineWidth(5)
+            love.graphics.setColor(0.2, 0.2, 0.2, 1)
+            love.graphics.rectangle("line", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
+
+            local text = ""
+            if reasonOfDeath then
+                text = reasonOfDeath .. "\n\n(Press space to try again.)"
+            else
+                text = description .. "\n\n(Press space to start.)"
+            end
+
+            love.graphics.setColor(0.2, 0.2, 0.2, 1)
+            love.graphics.printf(text, border*1.5, border*1.5, CANVAS_WIDTH-3*border, "center")
+        end
     end
 
     tlfres.endRendering()
