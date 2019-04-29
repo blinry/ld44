@@ -134,7 +134,7 @@ function initLevel(n)
 end
 
 function levelIntro()
-    description = "Today's the day.\n\nThe day you will get out of here.\n\nPress arrow keys to move. Don't let those bankers get you!"
+    description = "Today's the day.\nThe day you will get out of here.\n\nPress arrow keys to move. Don't let those bankers get you!"
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -666,13 +666,16 @@ function love.draw()
     love.graphics.clear(0.8, 0.8, 0.7)
 
     if state == "title" then
-        -- todo
         love.graphics.setColor(0.2, 0.2, 0.2)
         love.graphics.setFont(fonts.vollkorn[150])
         love.graphics.printf("Piggy's Escape", 0, 100, CANVAS_WIDTH, "center")
 
         love.graphics.setFont(fonts.vollkorn[50])
         love.graphics.printf("Made in 72 hours\nfor Ludum Dare 44\n\nby Agustín Ramos Anzorena, Alan Chu,\n Byung Shin, Sebastian Morr, and Tim Vieregge\n\n\nPress any key to start!", 0, 100+300, CANVAS_WIDTH, "center")
+
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(images.piggy, 300, 450, 0, 2, 2, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        love.graphics.draw(images.coin, 1600, 450, 0, 2, 2, images.coin:getWidth()/2, images.coin:getHeight()/2)
     else
         -- draw wall
         for _, wall in pairs(walls) do
@@ -759,7 +762,7 @@ function love.draw()
             end
 
             love.graphics.setColor(0.2, 0.2, 0.2, 1)
-            love.graphics.printf(text, border*1.5, border*1.5, CANVAS_WIDTH-3*border, "center")
+            love.graphics.printf(text, border*1.5, border+50, CANVAS_WIDTH-3*border, "center")
         end
     end
 
