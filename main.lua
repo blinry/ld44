@@ -671,7 +671,15 @@ end
 function love.draw()
     love.graphics.setColor(1, 1, 1)
     tlfres.beginRendering(CANVAS_WIDTH, CANVAS_HEIGHT)
-    love.graphics.clear(0.8, 0.8, 0.7)
+    --love.graphics.clear(0.8, 0.8, 0.7)
+
+    -- draw background
+    love.graphics.draw(images.floor, 0, 0, 0, 1, 1)
+    love.graphics.draw(images.floor, images.floor:getWidth(), 0, 0, 1, 1)
+    love.graphics.draw(images.floor, 0, images.floor:getHeight(), 0, 1, 1)
+    love.graphics.draw(images.floor, images.floor:getWidth(), images.floor:getHeight(), 0, 1, 1)
+    love.graphics.draw(images.floor, 0, 2*images.floor:getHeight(), 0, 1, 1)
+    love.graphics.draw(images.floor, images.floor:getWidth(), 2*images.floor:getHeight(), 0, 1, 1)
 
     if state == "title" then
         love.graphics.setColor(0.2, 0.2, 0.2)
@@ -682,7 +690,7 @@ function love.draw()
         love.graphics.printf("Made in 72 hours\nfor Ludum Dare 44\n\nby Agustín Ramos Anzorena, Alan Chu,\n Byung Shin, Sebastian Morr, and Tim Vieregge\n\n\nPress any key to start!", 0, 100+300, CANVAS_WIDTH, "center")
 
         love.graphics.setColor(1, 1, 1)
-        love.graphics.draw(images.piggy, 300, 450, 0, 2, 2, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        love.graphics.draw(images.pig, 300, 450, 0, 0.5, 0.5, images.pig:getWidth()/2, images.pig:getHeight()/2)
         love.graphics.draw(images.coin, 1600, 450, 0, 2, 2, images.coin:getWidth()/2, images.coin:getHeight()/2)
     elseif state == "end" then
         love.graphics.setColor(0.2, 0.2, 0.2)
@@ -690,9 +698,10 @@ function love.draw()
         love.graphics.printf("You made it out of the bank!\n\nThanks for playing! :)\n\n(Press space to return to the title screen.)", 0, 100+300, CANVAS_WIDTH, "center")
 
         love.graphics.setColor(1, 1, 1)
-        love.graphics.draw(images.piggy, 300, 450, 0, 2, 2, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        love.graphics.draw(images.pig, 300, 450, 0, 0.5, 0.5, images.pig:getWidth()/2, images.pig:getHeight()/2)
         love.graphics.draw(images.coin, 1600, 450, 0, 2, 2, images.coin:getWidth()/2, images.coin:getHeight()/2)
     else
+
         -- draw wall
         for _, wall in pairs(walls) do
             love.graphics.setColor(wall.color.r, wall.color.g, wall.color.b, wall.color.a) -- set color of walls
@@ -702,9 +711,13 @@ function love.draw()
         -- draw holes
         for _, hole in pairs(holes) do
             -- change color of holes later with fabrics
-            love.graphics.setColor(0, 0, 0, 1) -- set color of holes
-            love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
-            love.graphics.draw(images.hole, hole.pos.x, hole.pos.y, 0, hole.width/images.hole:getWidth(), hole.height/images.hole:getHeight())
+            love.graphics.setColor(1, 1, 1, 1) -- set color of holes
+            local spikeheight = 43
+            local f = hole.height/(images.pit:getHeight()-spikeheight)
+            local offset = spikeheight*f
+            love.graphics.draw(images.pit, hole.pos.x, hole.pos.y-offset, 0, hole.width/images.pit:getWidth(), hole.height/(images.pit:getHeight()-spikeheight))
+            --love.graphics.setColor(1, 1, 1, 0.5) -- set color of holes
+            --love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
         end
 
 
@@ -722,21 +735,21 @@ function love.draw()
         if player.currentlyHeld then
             love.graphics.setColor(0.5, 1, 0.5, 1)
         end
-        local playerScale = math.max(player:radius()/50, 0.2)
+        local playerScale = math.max(player:radius()/200, 0.2)
         local playerX, playerY = player.body:getPosition()
-        love.graphics.draw(images.piggy, playerX, playerY, 0, playerScale*player.flip, playerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        love.graphics.draw(images.pig, playerX, playerY, 0, playerScale*player.flip, playerScale, images.pig:getWidth()/2, images.pig:getHeight()/2)
         -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
         -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
 
         -- draw followers
         for _, follower in pairs(followers) do
-            local followerScale = follower:radius()/50
+            local followerScale = follower:radius()/200
             local followerX, followerY = follower.body:getPosition()
             love.graphics.setColor(follower.color.r, follower.color.g, follower.color.b, 1)
             if follower.currentlyHeld then
                 love.graphics.setColor(0.5, 1, 0.5, 1)
             end
-            love.graphics.draw(images.piggy, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+            love.graphics.draw(images.pig, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.pig:getWidth()/2, images.pig:getHeight()/2)
             -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
             -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
         end
