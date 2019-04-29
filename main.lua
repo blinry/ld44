@@ -21,6 +21,8 @@ CANVAS_HEIGHT = 1080
 state = "title"
 currentLevel = 1
 
+CRUMB_LIFE_POINTS = 10
+
 function love.load()
     math.randomseed(os.time())
 
@@ -338,8 +340,6 @@ function buildBush()
 end
 
 function placeFollowersInBush(bush)
-   
-    
     for i = 1,5 do
         followerAcceleration = playerAcceleration / 2
         variation = math.random(0, followerAcceleration/3)
@@ -353,10 +353,7 @@ function placeFollowersInBush(bush)
         table.insert(followers, follower)
         table.insert(bush.hiding_entities, follower)
     end
-
-
 end
-
 
 function calculateOverlapBetweenHoleAndEntity(hole, movingObject)
     -- model entity and hole as square
@@ -523,12 +520,6 @@ end
 
 function collide(dt)
     for i,crumb in pairs(breadCrumbs) do
-        -- for _, follower in pairs(followers) do
-            -- diff = crumb.pos - vector(follower.body:getPosition())
-            -- if diff:len() < crumb:radius() then
-                -- suckBreadCrumb(crumb, i, dt, follower)
-                -- table.remove(breadCrumbs, i)
-            -- end
         collided = overlapFollowers(crumb.pos, crumb:radius())
         if collided then
             suckBreadCrumb(crumb, i, dt, collided)
@@ -548,17 +539,21 @@ function collide(dt)
         end
     end
 
+    for i, crumb in pairs(breadCrumbs) do
+        local diff = crumb.pos - vector(player.body:getPosition())
+        timeSincePlaced = love.timer.getTime() - crumb.timePlaced
+        if diff:len() < crumb:radius()+player:radius() and timeSincePlaced > 1 then
+            table.remove(breadCrumbs, i)
+            player.lifePoints = player.lifePoints + CRUMB_LIFE_POINTS
+        end
+    end
+
     for i, pickup in pairs(pickups) do
         local diff = pickup.pos - vector(player.body:getPosition())
         if diff:len() < pickup:radius()+player:radius() then
             table.remove(pickups, i)
             player.currentlyHeld = pickup
         end
-        -- collided = overlapFollowers(pickup.pos, pickup:radius())
-        -- if collided then
-        --     table.remove(pickups, i)
-        --     collided.currentlyHeld = pickup
-        -- end
     end
 end
 
@@ -654,12 +649,14 @@ function love.keypressed(key)
             elseif key == "r" then
                 die()
             elseif key == "lctrl" then
-                local crumbLifePoints = 10
-                if player.lifePoints > crumbLifePoints then
+                if player.lifePoints > CRUMB_LIFE_POINTS then
                     sounds.coindrop:play()
-                    local currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), crumbLifePoints)
+                    local currentBreadCrumb = BreadCrumb:new(
+                        vector(player.body:getPosition()),
+                        CRUMB_LIFE_POINTS,
+                        love.timer.getTime())
                     table.insert(breadCrumbs, currentBreadCrumb)
-                    player.lifePoints = player.lifePoints - crumbLifePoints
+                    player.lifePoints = player.lifePoints - CRUMB_LIFE_POINTS
                 end
             end
         end
