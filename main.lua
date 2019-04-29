@@ -781,14 +781,15 @@ function love.draw()
         end
 
 
-        if trap.gotFollower == true then
-            -- change color to red
-            love.graphics.setColor(0,255,0,255)
-        else
-            -- change color to green
-            love.graphics.setColor(255, 0, 0, 255)
-        end
-        love.graphics.circle("fill", trap.pos.x, trap.pos.y, trap.radius)
+        -- if trap.gotFollower == true then
+        --     -- change color to red
+        --     love.graphics.setColor(0,255,0,255)
+        -- else
+        --     -- change color to green
+        --     love.graphics.setColor(255, 0, 0, 255)
+        -- end
+        love.graphics.setColor(0.8, 0.45, 0.2, 1)
+        love.graphics.draw(images.vault, trap.pos.x-trap.radius, trap.pos.y-trap.radius, 2*trap.radius/images.vault:getWidth(), 2*trap.radius/(images.vault:getHeight()))
 
         -- draw player
         love.graphics.setColor(1, 1, 1, 1) -- set color of player
