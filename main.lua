@@ -318,11 +318,11 @@ function love.update(dt)
     if currentBreadCrumb then
         currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
         currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()
-        currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease
-        player.lifePoints = player.lifePoints - lifeIncrease
+        currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease/2
+        player.lifePoints = player.lifePoints - lifeIncrease/2
     else
         if player.lifePoints < playerLifePoints then
-            player.lifePoints = player.lifePoints + lifeIncrease/10
+            player.lifePoints = player.lifePoints + lifeIncrease/20
         end
     end
 
@@ -441,7 +441,7 @@ function suckBreadCrumb(crumb, index, dt, follower)
         -- sounds.meow:play();
         table.remove(breadCrumbs, index)
     else
-        local suckedLifePoints = 50 * dt
+        local suckedLifePoints = 10 * dt
         crumb.lifePoints = crumb.lifePoints - suckedLifePoints
         follower.lifePoints = follower.lifePoints + suckedLifePoints
     end
