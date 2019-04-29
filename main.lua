@@ -65,7 +65,6 @@ function love.load()
 end
 
 function initGame()
-    resetGame()
     initLevel(1)
 end
 
@@ -620,6 +619,7 @@ function love.keypressed(key)
         end
     elseif state == "end" then
         if key == "escape" or key == "space" then
+            initLevel(1)
             state = "title"
         end
     else
