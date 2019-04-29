@@ -492,6 +492,8 @@ function love.keypressed(key)
     elseif key == "f" then
         isFullscreen = love.window.getFullscreen()
         love.window.setFullscreen(not isFullscreen)
+    elseif key == "r" then
+        die()
     elseif key == "lctrl" then
         currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), 0)
         table.insert(breadCrumbs, currentBreadCrumb)
