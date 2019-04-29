@@ -553,6 +553,7 @@ function collide(dt)
         if diff:len() < pickup:radius()+player:radius() then
             table.remove(pickups, i)
             player.currentlyHeld = pickup
+            sounds.key:play()
         end
         -- collided = overlapFollowers(pickup.pos, pickup:radius())
         -- if collided then
