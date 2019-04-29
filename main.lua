@@ -76,33 +76,63 @@ function initGame()
 
     playerLifePoints = 50
     playerAcceleration = 100000
-    playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT/2)
     playerSpeed = CANVAS_WIDTH/5
     -- player = Entity:new(playerPos, playerSpeed, playerLifePoints)
-    player = Player:new(playerPos, playerSpeed, playerLifePoints)
 
     followerAcceleration = playerAcceleration / 2
     followerLifePoints = playerLifePoints
 
+    math.randomseed(os.time())
 
     followers = {}
-    math.randomseed(os.time())
-    for i = 1,3 do
-        followerPos = vector(math.random(0, CANVAS_WIDTH), math.random(0, CANVAS_HEIGHT))
-        variation = math.random(0, followerAcceleration/3)
-        table.insert(followers, Follower:new(followerPos, followerAcceleration+variation, followerLifePoints/2))
-    end
+    --for i = 1,3 do
+    --    followerPos = vector(math.random(0, CANVAS_WIDTH), math.random(0, CANVAS_HEIGHT))
+    --    variation = math.random(0, followerAcceleration/3)
+    --    table.insert(followers, Follower:new(followerPos, followerAcceleration+variation, followerLifePoints/2))
+    --end
 
-    buildWalls()
-    key = Key:new(vector(CANVAS_WIDTH-100,100))
-    table.insert(pickups, key)
-    buildTraps()
-    buildHoles()
-    buildBushes()
-        -- this line needs to be customized depending on bush
-    for _, bush in pairs(bushes) do 
-        placeFollowersInBush(bush)
-    end
+    -- buildWalls()
+    -- key = Key:new(vector(CANVAS_WIDTH-100,100))
+    -- table.insert(pickups, key)
+    -- buildTraps()
+    -- buildHoles()
+    -- buildBushes()
+
+    -- -- this line needs to be customized depending on bush
+    -- for _, bush in pairs(bushes) do 
+    --     placeFollowersInBush(bush)
+    -- end
+
+    initLevel1()
+end
+
+function initLevel1()
+    playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*8/10)
+    player = Player:new(playerPos, playerSpeed, playerLifePoints)
+
+    buildOuterWalls()
+
+    buildWall(CANVAS_WIDTH/5, CANVAS_HEIGHT/2, 40, CANVAS_HEIGHT/2)
+    buildWall(CANVAS_WIDTH*4/5+50, 0, 40, CANVAS_HEIGHT/2)
+    buildWall(CANVAS_WIDTH*3/5, CANVAS_HEIGHT/2, CANVAS_WIDTH*1/5+40+50, 40)
+
+    buildDoor(CANVAS_WIDTH*3/5, CANVAS_HEIGHT/2+40, 40, CANVAS_HEIGHT/2)
+
+    buildHole(CANVAS_WIDTH*1.8/5, CANVAS_HEIGHT*1/7, CANVAS_WIDTH/8, CANVAS_HEIGHT/5)
+
+    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*1/10)
+    trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
+
+    buildKey(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*1/4)
+
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+end
+
+function buildOuterWalls()
+    buildWall(0, 0, CANVAS_WIDTH, 10)
+    buildWall(0, 0, 10, CANVAS_HEIGHT)
+    buildWall(0, CANVAS_HEIGHT-10, CANVAS_WIDTH, 10)
+    buildWall(CANVAS_WIDTH-10, 0, 10, CANVAS_HEIGHT)
 end
 
 function endContact(a, b, collision)
@@ -128,11 +158,11 @@ function beginContact(a, b, collision)
     local aClass = a:getUserData().class.name
     local bClass = b:getUserData().class.name
 
-    if aClass == "Door" and bClass == "DynamicEntity" and bObject.currentlyHeld
+    if aClass == "Door" and bClass == "Follower" and bObject.currentlyHeld
         then aObject.locked = false
     end
-    if bClass == "Door" and aClass == "DynamicEntity" and aObject.currentlyHeld
-        then aObject.locked = false
+    if bClass == "Door" and aClass == "Follower" and aObject.currentlyHeld
+        then bObject.locked = false
     end
 
 
@@ -153,10 +183,6 @@ function beginContact(a, b, collision)
 end
 
 function buildWalls()
-    buildWall(0, 0, CANVAS_WIDTH, 10)
-    buildWall(0, 0, 10, CANVAS_HEIGHT)
-    buildWall(0, CANVAS_HEIGHT-10, CANVAS_WIDTH, 10)
-    buildWall(CANVAS_WIDTH-10, 0, 10, CANVAS_HEIGHT)
 
     buildWall(CANVAS_WIDTH/6, CANVAS_HEIGHT/2-5, CANVAS_WIDTH/6*4, 40)
     buildDoor(CANVAS_WIDTH/6, CANVAS_HEIGHT/2+5, 40, CANVAS_HEIGHT/2-5)
@@ -166,6 +192,16 @@ function buildWall(x, y, w, h)
     wall_pos = vector(x, y)
     wall = Wall:new(wall_pos, w, h)
     table.insert(walls, wall)
+end
+
+function buildKey(x, y)
+    key = Key:new(vector(x, y))
+    table.insert(pickups, key)
+end
+
+function buildFollower(x, y, acceleration)
+   followerPos = vector(x, y)
+   table.insert(followers, Follower:new(followerPos, acceleration, followerLifePoints/2))
 end
 
 function buildTraps()
