@@ -720,10 +720,12 @@ function love.draw()
 
     -- draw intro text
     if gamePaused and (description ~= "" or reasonOfDeath ~= "") then
-        love.graphics.setColor(0.7, 0.7, 0.8, 0.8)
+        love.graphics.setColor(0.7, 0.7, 0.7, 0.8)
         local border = CANVAS_HEIGHT/5
         love.graphics.rectangle("fill", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
+        love.graphics.setLineWidth(5)
         love.graphics.setColor(0.2, 0.2, 0.2, 1)
+        love.graphics.rectangle("line", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
 
         local text = ""
         if reasonOfDeath then
@@ -732,6 +734,7 @@ function love.draw()
             text = description
         end
 
+        love.graphics.setColor(0.2, 0.2, 0.2, 1)
         love.graphics.printf(text, border*1.5, border*1.5, CANVAS_WIDTH-3*border, "center")
     end
 
