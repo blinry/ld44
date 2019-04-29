@@ -640,6 +640,7 @@ function love.keypressed(key)
             elseif key == "lctrl" then
                 local crumbLifePoints = 10
                 if player.lifePoints > crumbLifePoints then
+                    sounds.coindrop:play()
                     local currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), crumbLifePoints)
                     table.insert(breadCrumbs, currentBreadCrumb)
                     player.lifePoints = player.lifePoints - crumbLifePoints
