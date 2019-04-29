@@ -18,6 +18,8 @@ Bush = require "bush"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
+currentLevel = 1
+
 function love.load()
     math.randomseed(os.time())
 
@@ -61,6 +63,11 @@ function love.load()
 end
 
 function initGame()
+    resetGame()
+    initLevel(1)
+end
+
+function resetGame()
     currentBreadCrumb = nil
 
     breadCrumbs = {}
@@ -102,8 +109,22 @@ function initGame()
     -- for _, bush in pairs(bushes) do 
     --     placeFollowersInBush(bush)
     -- end
+end
 
-    initLevel1()
+function initLevel(n)
+    resetGame()
+
+    gamePaused = true
+    currentLevel = n
+
+    local levelInitializers = {
+        initLevel1,
+        initLevel2,
+    }
+
+    if levelInitializers[n] then
+        levelInitializers[n]()
+    end
 end
 
 function initLevel1()
@@ -126,6 +147,11 @@ function initLevel1()
     buildKey(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*1/4)
 
     buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+end
+
+function initLevel2()
+    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*1/10)
+    trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
 end
 
 function buildOuterWalls()
@@ -282,6 +308,10 @@ function buildDoor(x, y, w, h)
 end
 
 function love.update(dt)
+    if gamePaused then
+        return
+    end
+
     world:update(dt)
     movePlayer(dt)
     local lifeIncrease = 50*dt
@@ -304,7 +334,7 @@ function love.update(dt)
     end
 
     for _, body in pairs(world:getBodies()) do
-        local object = body:getFixtureList()[1]:getUserData()
+        local object = body:getFixtures()[1]:getUserData()
         object:update()
     end
     player:update()
@@ -387,13 +417,9 @@ function processHoleCollisions()
 
 end
 
-
-
-
-
 function die()
     currentBreadCrumb = nil
-    initGame()
+    initLevel(currentLevel)
 end
 
 function overlapFollowers(pos, r)
@@ -493,6 +519,8 @@ function love.mouse.getPosition()
 end
 
 function love.keypressed(key)
+    gamePaused = false
+
     if key == "escape" then
         love.window.setFullscreen(false)
         love.event.quit()
@@ -501,6 +529,8 @@ function love.keypressed(key)
         love.window.setFullscreen(not isFullscreen)
     elseif key == "r" then
         die()
+    elseif string.find(key, "%d") then
+        initLevel(tonumber(key))
     elseif key == "lctrl" then
         currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), 0)
         table.insert(breadCrumbs, currentBreadCrumb)
