@@ -798,6 +798,11 @@ function love.draw()
                 love.graphics.setColor(0.5, 1, 0.5, 1)
             end
             love.graphics.draw(images.pig, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.pig:getWidth()/2, images.pig:getHeight()/2)
+
+            if follower.mobility == false then
+                love.graphics.draw(images.cage, followerX, followerY, 0, followerScale*2, followerScale*2, images.cage:getWidth()/2, images.cage:getHeight()/2)
+            end
+
             -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
             -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
         end
