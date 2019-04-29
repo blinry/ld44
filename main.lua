@@ -18,6 +18,7 @@ Bush = require "bush"
 CANVAS_WIDTH = 1920
 CANVAS_HEIGHT = 1080
 
+state = "title"
 currentLevel = 1
 
 function love.load()
@@ -53,11 +54,12 @@ function love.load()
     for i,filename in pairs(love.filesystem.getDirectoryItems("fonts")) do
         if filename ~= ".gitkeep" then
             fonts[filename:sub(1,-5)] = {}
-            for fontsize=50,100 do
+            for fontsize=50,150 do
                 fonts[filename:sub(1,-5)][fontsize] = love.graphics.newFont("fonts/"..filename, fontsize)
             end
         end
     end
+    love.graphics.setFont(fonts.vollkorn[50])
 
     initGame()
 end
@@ -68,7 +70,7 @@ function initGame()
 end
 
 function resetGame()
-    currentBreadCrumb = nil
+    -- currentBreadCrumb = nil
 
     breadCrumbs = {}
     walls = {}
@@ -118,16 +120,42 @@ function initLevel(n)
     currentLevel = n
 
     local levelInitializers = {
-        initLevel1,
-        initLevel2,
+        levelIntro,
+        levelKey,
+        levelHole,
+        levelFollow,
     }
 
     if levelInitializers[n] then
         levelInitializers[n]()
+    else
+        state = "end"
     end
 end
 
-function initLevel1()
+function levelIntro()
+    description = "Today's the day.\nThe day you will get out of here.\n\nPress arrow keys to move. Don't let those bankers get you!"
+
+    playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
+    player = Player:new(playerPos, playerSpeed, playerLifePoints)
+
+    buildOuterWalls()
+
+    buildWall(CANVAS_WIDTH/4, 0, 40, CANVAS_HEIGHT*3/4)
+    buildWall(CANVAS_WIDTH/2, CANVAS_HEIGHT*1/3, 40, CANVAS_HEIGHT*2/3)
+    buildWall(CANVAS_WIDTH/2, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/4, 40)
+    buildWall(CANVAS_WIDTH*3/4, CANVAS_HEIGHT*2/3, CANVAS_WIDTH*1/4, 40)
+
+    buildFollower(CANVAS_WIDTH*1.5/4, CANVAS_HEIGHT*0.5/4, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH*2.5/4, CANVAS_HEIGHT*2/4, playerAcceleration/2)
+
+    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*9.2/10)
+    trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
+end
+
+function levelKey()
+    description = "In the next room, you see a strangely-formed golden object. You decide to investigate more."
+
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*8/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
 
@@ -147,10 +175,58 @@ function initLevel1()
     buildKey(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*1/4)
 
     buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
 end
 
-function initLevel2()
-    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*1/10)
+-- introduce holes
+function levelHole()
+    description = "Press any button to start"
+
+    playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
+    player = Player:new(playerPos, playerSpeed, playerLifePoints)
+
+    buildOuterWalls()
+
+    buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*0, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3)
+    buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3+50, CANVAS_WIDTH*1/5, CANVAS_HEIGHT)
+
+    buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*0, CANVAS_WIDTH*1/10, CANVAS_HEIGHT*2/3)
+    buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3)
+
+    buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*2/3+50, CANVAS_WIDTH*2/5, CANVAS_HEIGHT*1/3)
+    buildHole(CANVAS_WIDTH*4/5+50, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*2/3)
+
+    -- buildFollower(CANVAS_WIDTH*1.5/4, CANVAS_HEIGHT*0.5/4, playerAcceleration/2)
+    -- buildFollower(CANVAS_WIDTH*2.5/4, CANVAS_HEIGHT*2/4, playerAcceleration/2)
+
+    buildFollower(CANVAS_WIDTH*1/9, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+
+    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*1.2/10)
+    trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
+end
+
+-- introduce coin following
+function levelFollow()
+    description = "Be careful not to kill any bankers in the spiky pits.\n\nAfter all, you're a piggy bank, not a monster."
+
+    playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT*9/10)
+    player = Player:new(playerPos, playerSpeed, playerLifePoints)
+
+    buildOuterWalls()
+
+    buildWall(CANVAS_WIDTH*1/4, CANVAS_HEIGHT*1/4, 50, CANVAS_HEIGHT*3/4)
+    buildHole(CANVAS_WIDTH*1/8, CANVAS_HEIGHT*1/4, CANVAS_WIDTH*1/8, CANVAS_HEIGHT/2)
+
+    buildFollower(CANVAS_WIDTH*1/9, CANVAS_HEIGHT*9/10, playerAcceleration/2)
+
+    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*1.2/10)
     trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
 end
 
@@ -294,7 +370,6 @@ function calculateOverlapBetweenHoleAndEntity(hole, movingObject)
     -- return (area1 + area2 - areaI);
 end
 
-
 function buildHole(x, y, w, h)
     hole_pos = vector(x, y)
     hole = Hole:new(hole_pos, w, h)
@@ -308,7 +383,7 @@ function buildDoor(x, y, w, h)
 end
 
 function love.update(dt)
-    if gamePaused then
+    if gamePaused or state ~= "game" then
         return
     end
 
@@ -345,24 +420,38 @@ function love.update(dt)
     -- Deprecatation pending!
     collide(dt)
 
-    if currentBreadCrumb then
-        currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
-        currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()
-        currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease/2
-        player.lifePoints = player.lifePoints - lifeIncrease/2
-    else
-        if player.lifePoints < playerLifePoints then
-            player.lifePoints = player.lifePoints + lifeIncrease/20
-        end
+    -- if currentBreadCrumb then
+    --     currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
+    --     currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()
+    --     currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease/2
+    --     player.lifePoints = player.lifePoints - lifeIncrease/2
+    -- else
+    if player.lifePoints < playerLifePoints then
+        player.lifePoints = player.lifePoints + lifeIncrease/20
     end
+    -- end
 
     processHoleCollisions()
     -- technically a misnomer - needs to be fully covered in bush
     triggerHidingPigsInBushes()
+
+    checkWin()
+end
+
+function checkWin()
+    local win = true
+    for _, follower in pairs(followers) do
+        if follower.mobility then
+            win = false
+        end
+    end
+
+    if win then
+        initLevel(currentLevel+1)
+    end
 end
 
 function triggerHidingPigsInBushes()
-
     for _, bush in pairs(bushes) do 
         local dx = player:position().x - bush.pos.x
         local dy = player:position().y - bush.pos.y
@@ -379,8 +468,6 @@ function triggerHidingPigsInBushes()
 
 end
 
-
-
 function processHoleCollisions()
     follower_delete_list = nil
 
@@ -391,18 +478,10 @@ function processHoleCollisions()
             local area = 4*follower:radius()^2
 
             if pixelOverlap > area/2 then
-                follower_delete_list = {next = follower_delete_list, value = idx}
-                break
+                die("You killed a banker.")
+                return
             end
         end
-    end
-
-    local l = follower_delete_list
-    while l do
-        follower = followers[l.value]
-        follower.body:destroy()
-        table.remove(followers, l.value)
-        l = l.next
     end
 
     for _, hole in pairs(holes) do
@@ -411,14 +490,15 @@ function processHoleCollisions()
         local area = 4*player:radius()^2
 
         if pixelOverlap > area/2 then
-            die()
+            die("You died in a spiky pit.")
+            return
         end
     end
-
 end
 
-function die()
+function die(reason)
     currentBreadCrumb = nil
+    reasonOfDeath = reason
     initLevel(currentLevel)
 end
 
@@ -491,6 +571,7 @@ function findTarget(follower)
     local targets = table.shallow_copy(breadCrumbs)
     table.insert(targets, player)
     for i,target in pairs(targets) do
+
         diff = target:position() - follower:position()
         a = target:attractiveness()/diff:len()
         if a > currentHighestAttractiveness then
@@ -524,32 +605,58 @@ function love.mouse.getPosition()
 end
 
 function love.keypressed(key)
-    gamePaused = false
-
-    if key == "escape" then
-        love.window.setFullscreen(false)
-        love.event.quit()
-    elseif key == "f" then
-        isFullscreen = love.window.getFullscreen()
-        love.window.setFullscreen(not isFullscreen)
-    elseif key == "r" then
-        die()
-    elseif string.find(key, "%d") then
+    if string.find(key, "%d") then
+        state = "game"
         initLevel(tonumber(key))
-    elseif key == "lctrl" then
-        currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), 0)
-        table.insert(breadCrumbs, currentBreadCrumb)
+        return
     end
-end
 
-function love.keyreleased(key)
-    if key == "lctrl" then
-        if currentBreadCrumb then
-            currentBreadCrumb.pos = currentBreadCrumb.pos:clone()
-            currentBreadCrumb = nil
+    if state == "title" then
+        if key == "escape" then
+            love.window.setFullscreen(false)
+            love.event.quit()
+        else
+            state = "game"
+        end
+    elseif state == "end" then
+        if key == "escape" or key == "space" then
+            state = "title"
+        end
+    else
+        if gamePaused then
+            if key == "space" then
+                gamePaused = false
+            elseif key == "escape" then
+                state = "title"
+            end
+        else
+            if key == "escape" then
+                state = "title"
+            elseif key == "f" then
+                isFullscreen = love.window.getFullscreen()
+                love.window.setFullscreen(not isFullscreen)
+            elseif key == "r" then
+                die()
+            elseif key == "lctrl" then
+                local crumbLifePoints = 10
+                if player.lifePoints > crumbLifePoints then
+                    local currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), crumbLifePoints)
+                    table.insert(breadCrumbs, currentBreadCrumb)
+                    player.lifePoints = player.lifePoints - crumbLifePoints
+                end
+            end
         end
     end
 end
+
+-- function love.keyreleased(key)
+--     if key == "lctrl" then
+--         if currentBreadCrumb then
+--             currentBreadCrumb.pos = currentBreadCrumb.pos:clone()
+--             currentBreadCrumb = nil
+--         end
+--     end
+-- end
 
 function love.mousepressed(x, y, button)
 end
@@ -566,72 +673,113 @@ function love.draw()
     tlfres.beginRendering(CANVAS_WIDTH, CANVAS_HEIGHT)
     love.graphics.clear(0.8, 0.8, 0.7)
 
-    -- draw wall
-    for _, wall in pairs(walls) do
-        love.graphics.setColor(wall.color.r, wall.color.g, wall.color.b, wall.color.a) -- set color of walls
-        love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
-    end
+    if state == "title" then
+        love.graphics.setColor(0.2, 0.2, 0.2)
+        love.graphics.setFont(fonts.vollkorn[150])
+        love.graphics.printf("Piggy's Escape", 0, 100, CANVAS_WIDTH, "center")
 
-    -- draw holes
-    for _, hole in pairs(holes) do
-        -- change color of holes later with fabrics
-        love.graphics.setColor(1, 1, 1, 1) -- set color of holes
-        -- love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
-        love.graphics.draw(images.hole, hole.pos.x, hole.pos.y, 0, hole.width/images.hole:getWidth(), hole.height/images.hole:getHeight())
-    end
+        love.graphics.setFont(fonts.vollkorn[50])
+        love.graphics.printf("Made in 72 hours\nfor Ludum Dare 44\n\nby Agustín Ramos Anzorena, Alan Chu,\n Byung Shin, Sebastian Morr, and Tim Vieregge\n\n\nPress any key to start!", 0, 100+300, CANVAS_WIDTH, "center")
 
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(images.piggy, 300, 450, 0, 2, 2, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        love.graphics.draw(images.coin, 1600, 450, 0, 2, 2, images.coin:getWidth()/2, images.coin:getHeight()/2)
+    elseif state == "end" then
+        love.graphics.setColor(0.2, 0.2, 0.2)
+        love.graphics.setFont(fonts.vollkorn[50])
+        love.graphics.printf("You made it out of the bank!\n\nThanks for playing! :)\n\n(Press space to return to the title screen.)", 0, 100+300, CANVAS_WIDTH, "center")
 
-    if trap.gotFollower == true then
-        -- change color to red
-        love.graphics.setColor(0,255,0,255)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(images.piggy, 300, 450, 0, 2, 2, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        love.graphics.draw(images.coin, 1600, 450, 0, 2, 2, images.coin:getWidth()/2, images.coin:getHeight()/2)
     else
-        -- change color to green
-        love.graphics.setColor(255, 0, 0, 255)
-    end
-    love.graphics.circle("fill", trap.pos.x, trap.pos.y, trap.radius)
+        -- draw wall
+        for _, wall in pairs(walls) do
+            love.graphics.setColor(wall.color.r, wall.color.g, wall.color.b, wall.color.a) -- set color of walls
+            love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
+        end
 
-    -- draw player
-    love.graphics.setColor(1, 1, 1, 1) -- set color of player
-    if player.currentlyHeld then
-        love.graphics.setColor(0.5, 1, 0.5, 1)
-    end
-    local playerScale = player:radius()/50
-    local playerX, playerY = player.body:getPosition()
-    love.graphics.draw(images.piggy, playerX, playerY, 0, playerScale*player.flip, playerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
-    -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
-    -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
+        -- draw holes
+        for _, hole in pairs(holes) do
+            -- change color of holes later with fabrics
+            love.graphics.setColor(0, 0, 0, 1) -- set color of holes
+            love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
+            love.graphics.draw(images.hole, hole.pos.x, hole.pos.y, 0, hole.width/images.hole:getWidth(), hole.height/images.hole:getHeight())
+        end
 
-    -- draw followers
-    for _, follower in pairs(followers) do
-        local followerScale = follower:radius()/50
-        local followerX, followerY = follower.body:getPosition()
-        love.graphics.setColor(follower.color.r, follower.color.g, follower.color.b, 1)
-        if follower.currentlyHeld then
+
+        if trap.gotFollower == true then
+            -- change color to red
+            love.graphics.setColor(0,255,0,255)
+        else
+            -- change color to green
+            love.graphics.setColor(255, 0, 0, 255)
+        end
+        love.graphics.circle("fill", trap.pos.x, trap.pos.y, trap.radius)
+
+        -- draw player
+        love.graphics.setColor(1, 1, 1, 1) -- set color of player
+        if player.currentlyHeld then
             love.graphics.setColor(0.5, 1, 0.5, 1)
         end
-        love.graphics.draw(images.piggy, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        local playerScale = math.max(player:radius()/50, 0.2)
+        local playerX, playerY = player.body:getPosition()
+        love.graphics.draw(images.piggy, playerX, playerY, 0, playerScale*player.flip, playerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
         -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
-        -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
-    end
+        -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
 
-    -- draw crumbdrops
-    for _, breadCrumb in pairs(breadCrumbs) do
-        drawCrumb(breadCrumb)
-    end
+        -- draw followers
+        for _, follower in pairs(followers) do
+            local followerScale = follower:radius()/50
+            local followerX, followerY = follower.body:getPosition()
+            love.graphics.setColor(follower.color.r, follower.color.g, follower.color.b, 1)
+            if follower.currentlyHeld then
+                love.graphics.setColor(0.5, 1, 0.5, 1)
+            end
+            love.graphics.draw(images.piggy, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+            -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
+            -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
+        end
 
-    -- draw health bars
-    love.graphics.setColor(0.3, 0.3, 0.7, 1)
-    love.graphics.rectangle("fill", 0, 0, CANVAS_WIDTH*player.lifePoints/playerLifePoints, 30)
+        -- draw crumbdrops
+        for _, breadCrumb in pairs(breadCrumbs) do
+            drawCrumb(breadCrumb)
+        end
 
-    -- draw bushes
-    for _, bush in pairs(bushes) do
-        drawBush(bush)
-    end
+        -- draw health bars
+        love.graphics.setColor(0.3, 0.3, 0.7, 1)
+        love.graphics.rectangle("fill", 0, 0, CANVAS_WIDTH*player.lifePoints/playerLifePoints, 30)
 
-    -- draw pickups
-    love.graphics.setColor(1, 1, 1, 1)
-    for _, pickup in pairs(pickups) do
-        love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
+        -- draw bushes
+        for _, bush in pairs(bushes) do
+            drawBush(bush)
+        end
+
+        -- draw pickups
+        love.graphics.setColor(1, 1, 1, 1)
+        for _, pickup in pairs(pickups) do
+            love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
+        end
+
+        -- draw intro text
+        if gamePaused and (description ~= "" or reasonOfDeath ~= "") then
+            love.graphics.setColor(0.7, 0.7, 0.7, 0.8)
+            local border = CANVAS_HEIGHT/5
+            love.graphics.rectangle("fill", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
+            love.graphics.setLineWidth(5)
+            love.graphics.setColor(0.2, 0.2, 0.2, 1)
+            love.graphics.rectangle("line", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
+
+            local text = ""
+            if reasonOfDeath then
+                text = reasonOfDeath .. "\n\n(Press space to try again.)"
+            else
+                text = description .. "\n\n(Press space to start.)"
+            end
+
+            love.graphics.setColor(0.2, 0.2, 0.2, 1)
+            love.graphics.printf(text, border*1.5, border+50, CANVAS_WIDTH-3*border, "center")
+        end
     end
 
     tlfres.endRendering()
@@ -662,9 +810,4 @@ function drawBush(bush)
         love.graphics.circle("fill", bush.pos.x + bush.width + bush.heightRadius/5, bush.pos.y + i* bush.heightRadius, bush.heightRadius)
    
     end
-
-
-
-
-
 end
