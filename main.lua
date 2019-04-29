@@ -353,10 +353,14 @@ end
 
 function processHoleCollisions()
     follower_delete_list = nil
+
     for idx, follower in pairs(followers) do
         for _, hole in pairs(holes) do
             local pixelOverlap = calculateOverlapBetweenHoleAndEntity(hole, follower)
-            if pixelOverlap > 0 then
+
+            local area = 4*follower:radius()^2
+
+            if pixelOverlap > area/2 then
                 follower_delete_list = {next = follower_delete_list, value = idx}
                 break
             end
@@ -373,7 +377,10 @@ function processHoleCollisions()
 
     for _, hole in pairs(holes) do
         local pixelOverlap = calculateOverlapBetweenHoleAndEntity(hole, player)
-        if pixelOverlap > 0 then
+
+        local area = 4*player:radius()^2
+
+        if pixelOverlap > area/2 then
             die()
         end
     end
