@@ -798,7 +798,7 @@ function love.draw()
         end
         local playerScale = math.max(player:radius()/200, 0.2)
         local playerX, playerY = player.body:getPosition()
-        love.graphics.draw(images.pig, playerX, playerY, 0, playerScale*player.flip, playerScale, images.pig:getWidth()/2, images.pig:getHeight()/2)
+        love.graphics.draw(images.pigNaked, playerX, playerY, 0, playerScale*player.flip, playerScale, images.pig:getWidth()/2, images.pig:getHeight()/2)
         -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
         -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
 
