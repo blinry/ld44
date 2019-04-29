@@ -21,7 +21,7 @@ function DynamicEntity:initialize(pos, acceleration, lifePoints)
 end
 
 function DynamicEntity:attractiveness()
-    return self.lifePoints/2
+    return self.lifePoints/8
 end
 
 function DynamicEntity:update()

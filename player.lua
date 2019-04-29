@@ -13,4 +13,8 @@ function Player:update()
     end
 end
 
+function Player:attractiveness()
+    return self.lifePoints/8
+end
+
 return Player

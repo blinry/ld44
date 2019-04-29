@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
+   sodipodi:docname="piggy.svg">
+  <defs
+     id="defs2">
+    <inkscape:path-effect
+       is_visible="true"
+       id="path-effect893"
+       effect="spiro" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect889"
+       is_visible="true" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect876"
+       is_visible="true" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect872"
+       is_visible="true" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect849"
+       is_visible="true" />
+    <inkscape:path-effect
+       is_visible="true"
+       id="path-effect845"
+       effect="spiro" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect841"
+       is_visible="true" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect837"
+       is_visible="true" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect833"
+       is_visible="true" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect823"
+       is_visible="true" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect819"
+       is_visible="true" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.8"
+     inkscape:cx="276.40608"
+     inkscape:cy="721.45423"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1526"
+     inkscape:window-height="1365"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="opacity:1;fill:#ffaaaa;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 80.0874,80.599132 c -2.62601,3.081649 -4.183755,7.10862 -4.072174,11.155846 0.111581,4.047227 1.953226,8.06378 5.100959,10.610202 1.936266,1.56638 4.327943,2.56291 6.803572,2.83482 l 0.188987,10.96131 c 1.443898,0.50481 2.984755,0.73066 4.512788,0.66146 1.165588,-0.0528 2.323301,-0.27639 3.424711,-0.66146 l 1.557764,-9.08092 c 2.990013,0.20154 5.989663,0.26015 8.985273,0.17556 2.67072,-0.0754 5.33823,-0.26463 7.99286,-0.56696 l 1.25132,8.98087 c 1.37427,0.29814 2.78727,0.4173 4.19206,0.35353 1.22041,-0.0554 2.43451,-0.24867 3.6118,-0.57495 l -0.19177,-9.8151 c 2.82921,-0.33976 5.50456,-1.82247 7.29226,-4.04148 1.68151,-2.087198 2.55946,-4.760855 2.68358,-7.438257 0.12412,-2.677401 -0.4768,-5.357701 -1.50773,-7.83178 -1.15125,-2.762817 -2.84866,-5.30726 -5.0244,-7.362668 -3.09938,-2.927975 -7.09459,-4.79695 -11.23814,-5.802035 -4.14355,-1.005085 -8.44706,-1.183971 -12.70864,-1.049357 -4.184992,0.132194 -8.395974,0.569727 -12.382117,1.851246 -3.986143,1.281519 -7.757242,3.453198 -10.472963,6.640123 z"
+       id="path817"
+       inkscape:connector-curvature="0"
+       inkscape:path-effect="#path-effect819"
+       inkscape:original-d="m 80.0874,80.599132 c -15.245305,2.079135 -0.293868,14.33226 1.028785,21.766048 1.322652,7.4338 6.803572,2.83482 6.803572,2.83482 l 0.188987,10.96131 c 0,0 3.023204,0.6969 4.512788,0.66146 1.262119,-0.03 3.424711,-0.66146 3.424711,-0.66146 l 1.557764,-9.08092 c 0,0 4.386833,-0.32867 8.985273,0.17556 4.59845,0.50423 7.99286,-0.56696 7.99286,-0.56696 l 1.25132,8.98087 c 0,0 2.7907,0.40521 4.19206,0.35353 1.21826,-0.0449 3.6118,-0.57495 3.6118,-0.57495 l -0.19177,-9.8151 c 0,0 4.80251,-3.61131 7.29226,-4.04148 11.50746,-1.988212 9.93889,-14.534543 1.17585,-15.270037 -6.00108,-0.503678 -3.26026,-3.394176 -5.0244,-7.362668 -1.76414,-3.968478 -15.6504,-7.171215 -23.94678,-6.851392 -8.121136,0.313066 -7.609776,6.412236 -22.85508,8.491369 z"
+       sodipodi:nodetypes="ssccsccsccsccsssas"
+       transform="translate(-3.6081386,0.80180858)"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <path
+       style="opacity:1;fill:#fb8383;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 85.392613,75.366744 c -4.456716,1.606956 -8.279984,4.905686 -10.522537,9.078883 -1.162138,2.162639 -1.911028,4.558753 -2.079883,7.008051 -0.168854,2.449298 0.252004,4.950201 1.310283,7.165515 1.887898,3.951967 5.866576,6.828537 10.211137,7.382617 -2.518848,-0.91021 -4.757844,-2.57945 -6.349306,-4.7336 -1.591462,-2.154141 -2.529163,-4.784763 -2.659118,-7.45987 -0.126803,-2.610216 0.500591,-5.215763 1.503112,-7.629113 1.788421,-4.305234 4.798136,-8.095276 8.586312,-10.812483 z"
+       id="path887"
+       inkscape:connector-curvature="0"
+       inkscape:path-effect="#path-effect889"
+       inkscape:original-d="m 85.392613,75.366744 c 0,0 -7.905703,3.299998 -10.522537,9.078883 -2.128744,4.701009 1.208706,11.765652 -0.7696,14.173566 -4.41021,5.367927 10.211137,7.382617 10.211137,7.382617 0,0 -6.00535,-8.129245 -9.008424,-12.19347 -1.005832,-1.361247 -0.0056,-4.881693 1.503112,-7.629113 2.995786,-5.45545 8.586312,-10.812483 8.586312,-10.812483 z"
+       sodipodi:nodetypes="csscssc"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <ellipse
+       ry="1.6536458"
+       rx="1.1811755"
+       cy="86.89444"
+       cx="125.36314"
+       id="ellipse827"
+       style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <ellipse
+       style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path825"
+       cx="122.965"
+       cy="89.275673"
+       rx="1.2284225"
+       ry="1.8662573"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <ellipse
+       style="opacity:1;fill:#ffaaaa;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path829"
+       cx="129.02211"
+       cy="93.122383"
+       rx="3.9215031"
+       ry="4.3939729"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <path
+       style="opacity:1;fill:#ffaaaa;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.4893226;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 127.09449,92.325893 v 3.212795"
+       id="path831"
+       inkscape:connector-curvature="0"
+       inkscape:path-effect="#path-effect833"
+       inkscape:original-d="m 127.09449,92.325893 c 2.7e-4,1.070665 0,3.212795 0,3.212795"
+       transform="matrix(1,0,0,1.0441177,1.4551606,-4.7886253)"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <path
+       style="opacity:1;fill:#ffaaaa;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.44265786;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 129.12612,91.995161 V 94.73549"
+       id="path835"
+       inkscape:connector-curvature="0"
+       inkscape:path-effect="#path-effect837"
+       inkscape:original-d="m 129.12612,91.995161 c 2.6e-4,0.897429 0,2.740329 0,2.740329"
+       transform="matrix(1,0,0,1.2758619,0.8409493,-26.329617)"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       transform="rotate(-14.335363,92.355525,89.710961)"
+       inkscape:original-d="m 116.13318,84.199404 c -1.51164,-0.40974 -2.99204,-0.850713 -4.48846,-1.275671 -1.49643,-0.424957 -6.57404,2.438095 -6.57404,2.438095 0,0 2.6843,1.577638 4.54242,2.381103 1.85811,0.803463 3.43473,4.146578 3.43473,4.146578"
+       inkscape:path-effect="#path-effect893"
+       inkscape:connector-curvature="0"
+       id="path891"
+       d="m 116.13318,84.199404 c -1.35824,-0.791005 -2.91722,-1.234085 -4.48846,-1.275671 -2.39406,-0.06336 -4.80024,0.829009 -6.57404,2.438095 1.64861,0.491237 3.20053,1.304742 4.54242,2.381103 1.40971,1.130757 2.58615,2.551022 3.43473,4.146578"
+       style="opacity:1;fill:#fb8383;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <path
+       style="opacity:1;fill:#ffaaaa;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 116.13318,84.199404 c -1.39036,-0.720476 -2.927,-1.157205 -4.48846,-1.275671 -2.2491,-0.170636 -4.54482,0.328434 -6.52009,1.41741 1.7303,0.770097 3.27931,1.944085 4.48847,3.401788 0.83292,1.004123 1.50544,2.141012 1.98437,3.354538"
+       id="path839"
+       inkscape:connector-curvature="0"
+       inkscape:path-effect="#path-effect841"
+       inkscape:original-d="m 116.13318,84.199404 c -1.51164,-0.40974 -2.99204,-0.850713 -4.48846,-1.275671 -1.49643,-0.424957 -6.52009,1.41741 -6.52009,1.41741 0,0 2.63035,2.598323 4.48847,3.401788 1.85811,0.803463 1.98437,3.354538 1.98437,3.354538"
+       transform="rotate(-7.5940337,79.127951,78.761449)"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       transform="matrix(-0.95598088,0.29342897,0.29342897,0.95598088,203.06326,-38.114245)"
+       inkscape:original-d="m 116.13318,84.199404 c -1.51164,-0.40974 -2.99204,-0.850713 -4.48846,-1.275671 -1.49643,-0.424957 -6.52009,1.41741 -6.52009,1.41741 0,0 2.63035,2.598323 4.48847,3.401788 1.85811,0.803463 1.98437,3.354538 1.98437,3.354538"
+       inkscape:path-effect="#path-effect845"
+       inkscape:connector-curvature="0"
+       id="path843"
+       d="m 116.13318,84.199404 c -1.39036,-0.720476 -2.927,-1.157205 -4.48846,-1.275671 -2.2491,-0.170636 -4.54482,0.328434 -6.52009,1.41741 1.7303,0.770097 3.27931,1.944085 4.48847,3.401788 0.83292,1.004123 1.50544,2.141012 1.98437,3.354538"
+       style="opacity:1;fill:#ffaaaa;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <path
+       style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 94.966517,76.450893 c 1.626727,-0.381904 3.290976,-0.603804 4.960937,-0.661459 2.187696,-0.07553 4.384986,0.131461 6.520096,0.614209 l 0.28348,-1.370163 c -1.74456,-0.440145 -3.53995,-0.678471 -5.33892,-0.708705 -2.360682,-0.03968 -4.727078,0.280109 -6.992556,0.944941 z"
+       id="path847"
+       inkscape:connector-curvature="0"
+       inkscape:path-effect="#path-effect849"
+       inkscape:original-d="m 94.966517,76.450893 c 0,0 3.307556,-0.441238 4.960937,-0.661459 1.653386,-0.220223 6.520096,0.614209 6.520096,0.614209 l 0.28348,-1.370163 c 0,0 -3.55901,-0.472733 -5.33892,-0.708705 -1.779899,-0.235971 -6.992556,0.944941 -6.992556,0.944941 z"
+       transform="translate(0.04724697,-0.14174107)"
+       sodipodi:nodetypes="ccccscc"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <g
+       id="g880"
+       transform="translate(-1.4646577,-0.33072917)"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868">
+      <path
+         sodipodi:nodetypes="cscccc"
+         inkscape:original-d="m 72.776083,81.096333 c 0.707417,0.367231 2.017641,0.685106 2.718959,1.052866 0.701317,0.36776 2.937794,2.149045 2.937794,2.149045 0.193875,0.91771 0.234548,0.639287 -1.141831,0.823838 0,0 -1.43459,-0.953603 -2.459387,-1.454467 -1.024798,-0.500867 -3.156835,-0.914481 -3.156835,-0.914481"
+         inkscape:path-effect="#path-effect876"
+         inkscape:connector-curvature="0"
+         id="path874"
+         d="m 72.776083,81.096333 c 0.943101,0.243783 1.857628,0.597916 2.718959,1.052866 1.076647,0.568678 2.069775,1.295168 2.937794,2.149045 l -1.141831,0.823838 C 76.531785,84.543405 75.704476,84.054139 74.831618,83.667615 73.826854,83.22268 72.761793,82.91415 71.674783,82.753134"
+         style="opacity:1;fill:#ffaaaa;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         transform="rotate(180,74.935692,83.109207)" />
+      <path
+         transform="translate(1.1587392,-2.2592591)"
+         sodipodi:nodetypes="ccssscssccc"
+         inkscape:original-d="m 69.405878,83.396205 c -2.362615,-0.141475 0.504232,-2.236626 0.283482,-3.82701 -0.220752,-1.590386 2.195106,1.992115 3.23859,2.271707 4.720461,1.264804 -0.846359,1.313099 -1.303345,2.053567 -0.207996,0.337021 -2.039957,0.932751 -3.610457,0.972191 -1.880039,0.04722 -3.663701,-0.667256 -3.663701,-0.667256 0,0 3.370552,-0.535731 5.055431,-0.803199 1.684879,-0.267469 1.417675,-1.134193 2.126116,-1.700893 0.708441,-0.5667 -0.409209,-0.598727 -0.614211,-0.897693 -0.205002,-0.298967 -0.55761,0.527326 -0.935851,0.826822 -0.37824,0.299496 0.293476,0.660442 0.93892,1.211922"
+         inkscape:path-effect="#path-effect872"
+         inkscape:connector-curvature="0"
+         id="path870"
+         d="m 69.405878,83.396205 c -0.31636,-0.219876 -0.574077,-0.523326 -0.739828,-0.871114 -0.16575,-0.347788 -0.23914,-0.739085 -0.21068,-1.123298 0.02846,-0.384213 0.158703,-0.760427 0.373887,-1.079997 0.215185,-0.319571 0.514799,-0.581737 0.860103,-0.752601 0.359805,-0.17804 0.768251,-0.256298 1.168442,-0.224593 0.40019,0.03171 0.79104,0.173202 1.119206,0.404427 0.328165,0.231225 0.592825,0.551497 0.758733,0.917054 0.165909,0.365557 0.232716,0.775423 0.192209,1.174819 -0.04215,0.415637 -0.198996,0.81608 -0.429926,1.164222 -0.230929,0.348142 -0.53449,0.645094 -0.873419,0.889345 -1.02829,0.741041 -2.342991,0.979525 -3.610457,0.972191 -1.247614,-0.0072 -2.493651,-0.234155 -3.663701,-0.667256 1.701984,-0.141576 3.393377,-0.410302 5.055431,-0.803199 0.476368,-0.11261 0.960101,-0.239604 1.369726,-0.507586 0.204812,-0.133991 0.388727,-0.302988 0.524799,-0.506424 0.136072,-0.203436 0.222939,-0.442288 0.231591,-0.686883 0.007,-0.19706 -0.03826,-0.398282 -0.144635,-0.564309 -0.106378,-0.166027 -0.276362,-0.294019 -0.469576,-0.333384 -0.115282,-0.02349 -0.236429,-0.01546 -0.348604,0.02002 -0.112174,0.03548 -0.215301,0.09806 -0.300797,0.17888 -0.170991,0.161642 -0.267567,0.39338 -0.28645,0.627922 -0.0225,0.279472 0.0629,0.566266 0.23461,0.787908 0.171714,0.221642 0.428079,0.37598 0.70431,0.424014"
+         style="opacity:1;fill:#ffaaaa;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    </g>
+    <path
+       style="opacity:1;fill:#fb8383;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 84.311615,106.00181 2.751431,0.4009 0.06682,10.99217 -2.629258,-0.43176 z"
+       id="rect882"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       inkscape:connector-curvature="0"
+       id="path885"
+       d="m 111.10089,107.31443 2.48416,-0.20046 1.26951,9.78946 -2.62926,-0.43176 z"
+       style="opacity:1;fill:#fb8383;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="/home/seb/wip/ld44/images/piggy.png"
+       inkscape:export-xdpi="54.989868"
+       inkscape:export-ydpi="54.989868" />
+  </g>
+</svg>
