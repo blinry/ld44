@@ -97,6 +97,7 @@ function resetGame()
     world:setCallbacks(beginContact, endContact)
 
     playerLifePoints = 50
+    playerLifePointsStep = 4
     playerAcceleration = 100000
     playerSpeed = CANVAS_WIDTH/5
     -- player = Entity:new(playerPos, playerSpeed, playerLifePoints)
@@ -816,8 +817,11 @@ function love.draw()
         end
 
         -- draw health bars
-        love.graphics.setColor(0.3, 0.3, 0.7, 1)
-        love.graphics.rectangle("fill", 0, 0, CANVAS_WIDTH*player.lifePoints/playerLifePoints, 30)
+        local lifeCoins = math.floor(player.lifePoints / playerLifePointsStep)
+        for i=0, lifeCoins do 
+            love.graphics.draw(images.coin, 15 + (i*60), 15, 0, .5, .5)
+        end
+        
 
         -- draw bushes
         for _, bush in pairs(bushes) do
