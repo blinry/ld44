@@ -20,7 +20,7 @@ CANVAS_HEIGHT = 1080
 
 state = "title"
 currentLevel = 1
-
+subtraps = {}
 CRUMB_LIFE_POINTS = 10
 
 function love.load()
@@ -141,6 +141,7 @@ function initLevel(n)
         levelFollow,
         levelHole,
         levelKey,
+        levelPaths,
     }
 
     if levelInitializers[n] then
@@ -149,6 +150,75 @@ function initLevel(n)
         state = "end"
     end
 end
+
+function levelPaths()
+    title = "Choices"
+    description = "Don't think too much. Sometimes you have to push your way through."
+
+    playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
+    player = Player:new(playerPos, playerSpeed, playerLifePoints)
+
+    buildOuterWalls()
+
+    buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/5, CANVAS_WIDTH*2/5, CANVAS_HEIGHT*2.7/10)
+
+    buildHole(CANVAS_WIDTH*3.5/5, CANVAS_HEIGHT*1/5, CANVAS_WIDTH*2/10, CANVAS_HEIGHT*2.4/10)
+
+    buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*3.2/5, CANVAS_WIDTH*7/10, CANVAS_HEIGHT*0.7/3)
+
+    --bot
+    bush = buildBush(CANVAS_WIDTH*5/10, CANVAS_HEIGHT*18/20,  CANVAS_HEIGHT/15, CANVAS_WIDTH/8, CANVAS_WIDTH/20)
+    placeFollowersInBush(bush, 10)
+    -- followerAcceleration = playerAcceleration / 2
+    -- variation = math.random(0, followerAcceleration/3)
+    -- followerPos = vector(CANVAS_WIDTH*5/10, CANVAS_HEIGHT*18.5/20)
+    -- follower = Follower:new(followerPos, followerAcceleration + variation, followerLifePoints/4)
+    -- follower.mobility = false
+    -- table.insert(followers, follower)
+    -- table.insert(bush.hiding_entities, follower)
+
+
+    --top
+    buildBush(CANVAS_WIDTH*3/10, CANVAS_HEIGHT*1/20,  CANVAS_HEIGHT/15, CANVAS_WIDTH/8, CANVAS_WIDTH/8)
+    buildHole(CANVAS_WIDTH*3/10, CANVAS_HEIGHT*1/20, CANVAS_WIDTH/8, CANVAS_HEIGHT/15)
+
+    buildBush(CANVAS_WIDTH*8/10, CANVAS_HEIGHT*1/20,  CANVAS_HEIGHT/15, CANVAS_WIDTH/8, CANVAS_WIDTH/8)
+
+    -- middle
+    bush = buildBush(CANVAS_WIDTH*3/10, CANVAS_HEIGHT*10/20,  CANVAS_HEIGHT/15, CANVAS_WIDTH/8, CANVAS_WIDTH/8)
+    --buildFollower(CANVAS_WIDTH*4/10, CANVAS_HEIGHT*10/20, playerAcceleration/2)
+    placeFollowersInBush(bush, 1)
+
+    buildBush(CANVAS_WIDTH*5/10, CANVAS_HEIGHT*10/20,  CANVAS_HEIGHT/15, CANVAS_WIDTH/8, CANVAS_WIDTH/8)
+
+    bush = buildBush(CANVAS_WIDTH*7/10, CANVAS_HEIGHT*10/20,  CANVAS_HEIGHT/15, CANVAS_WIDTH/8, CANVAS_WIDTH/30)
+    placeFollowersInBush(bush, 10)
+    
+    subtrap_pos = vector(CANVAS_WIDTH*1/10, CANVAS_HEIGHT*5.5/10)
+    subtrap = Trap:new(subtrap_pos, CANVAS_WIDTH/20)
+    table.insert(subtraps, subtrap)
+
+
+    --buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3+50, CANVAS_WIDTH*1/5, CANVAS_HEIGHT)
+
+    --buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*0, CANVAS_WIDTH*1/10, CANVAS_HEIGHT*2/3)
+    --buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3)
+
+    --buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*2/3+50, CANVAS_WIDTH*2/5, CANVAS_HEIGHT*1/3)
+    --buildHole(CANVAS_WIDTH*4/5+50, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*2/3)
+
+    -- buildFollower(CANVAS_WIDTH*1.5/4, CANVAS_HEIGHT*0.5/4, playerAcceleration/2)
+    -- buildFollower(CANVAS_WIDTH*2.5/4, CANVAS_HEIGHT*2/4, playerAcceleration/2)
+
+    buildFollower(CANVAS_WIDTH*1/9, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+
+
+    trap_pos = vector(CANVAS_WIDTH*9.5/10, CANVAS_HEIGHT*5.5/10)
+    trap = Trap:new(trap_pos, CANVAS_WIDTH/20)
+
+
+end
+
 
 function levelIntro()
     title = "Today's the day"
@@ -338,27 +408,30 @@ function buildHoles()
 end
 
 function buildBushes()
-    buildBush()
+    buildBush(CANVAS_WIDTH*3/10, CANVAS_HEIGHT*9/10,  CANVAS_HEIGHT/10, CANVAS_WIDTH/5 )
 end
 
-function buildBush()
-    bush_pos = vector(CANVAS_WIDTH*3/10, CANVAS_HEIGHT*9/10)
-    height = CANVAS_HEIGHT/10
-    width = CANVAS_WIDTH/5
+function buildBush(x, y, h, w, r)
+    bush_pos = vector(x, y)
+    height = h
+    width = w
+
     bush = Bush:new(bush_pos, width, height)
+    bush.detectionRadius = r
     table.insert(bushes, bush)
+    return bush
 end
 
-function placeFollowersInBush(bush)
-    for i = 1,5 do
+function placeFollowersInBush(bush, count)
+    for i = 1,count do
         followerAcceleration = playerAcceleration / 2
         variation = math.random(0, followerAcceleration/3)
         followerLifePoints = 50
         followerSpeed = 50
-        local bush_x = bush.pos.x +  bush.width/2 + math.random(0, bush.width/5)
-        local bush_y = bush.pos.y + bush.height/2 + math.random(0, bush.height/5)
+        local bush_x = bush.pos.x +  bush.width/2 + math.random(0, bush.width/10)
+        local bush_y = bush.pos.y + bush.height/2 + math.random(0, bush.height/10)
         followerPos = vector(bush_x, bush_y)
-        follower = Follower:new(followerPos, followerAcceleration+variation, followerLifePoints/2)
+        follower = Follower:new(followerPos, followerAcceleration+variation, followerLifePoints/4)
         follower.mobility = false
         table.insert(followers, follower)
         table.insert(bush.hiding_entities, follower)
@@ -551,6 +624,9 @@ function collide(dt)
         end
     end
 
+      -- This is the code to trigger traps and followers
+
+
     for i, crumb in pairs(breadCrumbs) do
         local diff = crumb.pos - vector(player.body:getPosition())
         timeSincePlaced = love.timer.getTime() - crumb.timePlaced
@@ -671,6 +747,16 @@ function love.keypressed(key)
                     table.insert(breadCrumbs, currentBreadCrumb)
                     player.lifePoints = player.lifePoints - CRUMB_LIFE_POINTS
                 end
+            elseif key == "lshift" then
+                if player.lifePoints > CRUMB_LIFE_POINTS then
+                    sounds.coindrop:play()
+                    local currentBreadCrumb = BreadCrumb:new(
+                        vector(player.body:getPosition()),
+                        CRUMB_LIFE_POINTS,
+                        love.timer.getTime())
+                    table.insert(breadCrumbs, currentBreadCrumb)
+                    player.lifePoints = player.lifePoints - CRUMB_LIFE_POINTS
+                end
             end
         end
     end
@@ -714,7 +800,7 @@ function love.draw()
         love.graphics.printf("Piggy's Escape", 0, 100, CANVAS_WIDTH, "center")
 
         love.graphics.setFont(fonts.vollkorn[50])
-        love.graphics.printf("Made in 72 hours\nfor Ludum Dare 44\n\nby Agustín Ramos Anzorena, Alan Chu,\n Byung Shin, Sebastian Morr, and Tim Vieregge\n\n\nPress any key to start!", 0, 100+300, CANVAS_WIDTH, "center")
+        love.graphics.printf("Made in 72 hours\nfor Ludum Dare 44\n\nby Agustín Ramos Anzorena, Alan Chu,\n Byung Joo Shin, Sebastian Morr, and Tim Vieregge\n\n\nPress any key to start!", 0, 100+300, CANVAS_WIDTH, "center")
 
         love.graphics.setColor(1, 1, 1)
         love.graphics.draw(images.pig, 300, 450, 0, 0.5, 0.5, images.pig:getWidth()/2, images.pig:getHeight()/2)
@@ -788,6 +874,18 @@ function love.draw()
         -- end
         love.graphics.setColor(0.8, 0.45, 0.2, 1)
         love.graphics.draw(images.vault, trap.pos.x-trap.radius, trap.pos.y-trap.radius, 2*trap.radius/images.vault:getWidth(), 2*trap.radius/(images.vault:getHeight()))
+
+
+        for _, subtrap in pairs(subtraps) do
+            if subtrap.gotFollower == true then
+                -- change color to red
+                love.graphics.setColor(0,255,0,255)
+            else
+                -- change color to green
+                love.graphics.setColor(255, 0, 0, 255)
+            end
+            love.graphics.circle("fill", subtrap.pos.x, subtrap.pos.y, subtrap.radius)
+        end
 
         -- draw player
         love.graphics.setColor(1, 1, 1, 1) -- set color of player
