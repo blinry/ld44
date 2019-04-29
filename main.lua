@@ -54,12 +54,11 @@ function love.load()
     for i,filename in pairs(love.filesystem.getDirectoryItems("fonts")) do
         if filename ~= ".gitkeep" then
             fonts[filename:sub(1,-5)] = {}
-            for fontsize=50,150 do
-                fonts[filename:sub(1,-5)][fontsize] = love.graphics.newFont("fonts/"..filename, fontsize)
-            end
+            fonts[filename:sub(1,-5)][35] = love.graphics.newFont("fonts/"..filename, 35)
+            fonts[filename:sub(1,-5)][50] = love.graphics.newFont("fonts/"..filename, 50)
+            fonts[filename:sub(1,-5)][150] = love.graphics.newFont("fonts/"..filename, 150)
         end
     end
-    love.graphics.setFont(fonts.vollkorn[50])
 
     initGame()
 end
@@ -133,7 +132,7 @@ function initLevel(n)
 end
 
 function levelIntro()
-    description = "Today's the day.\nThe day you will get out of here.\n\nPress arrow keys to move. Don't let those bankers get you!"
+    description = "Today's the day.\nThe day you will get out of this bank.\n\nPress arrow keys to move. Guide all bankers to the flag post to trap them!\n\nOink."
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -626,6 +625,7 @@ function love.keypressed(key)
         if gamePaused then
             if key == "space" then
                 gamePaused = false
+                reasonOfDeath = ""
             elseif key == "escape" then
                 state = "title"
             end
@@ -776,6 +776,7 @@ function love.draw()
 
         -- draw intro text
         if gamePaused and (description ~= "" or reasonOfDeath ~= "") then
+        love.graphics.setFont(fonts.vollkorn[35])
             love.graphics.setColor(0.7, 0.7, 0.7, 0.8)
             local border = CANVAS_HEIGHT/5
             love.graphics.rectangle("fill", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
