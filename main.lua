@@ -58,6 +58,7 @@ function love.load()
             end
         end
     end
+    love.graphics.setFont(fonts.vollkorn[50])
 
     initGame()
 end
@@ -124,10 +125,14 @@ function initLevel(n)
 
     if levelInitializers[n] then
         levelInitializers[n]()
+    else
+        initLevel(1)
     end
 end
 
 function initLevel1()
+    description = "Use arrow keys to move, and left control to drop coins."
+
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*8/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
 
@@ -157,8 +162,24 @@ function initLevel1()
     buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
 end
 
+-- introduce walls and goal flag
 function initLevel2()
-    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*1/10)
+    description = "Don't let the bankers get you!"
+
+    playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
+    player = Player:new(playerPos, playerSpeed, playerLifePoints)
+
+    buildOuterWalls()
+
+    buildWall(CANVAS_WIDTH/4, 0, 40, CANVAS_HEIGHT*3/4)
+    buildWall(CANVAS_WIDTH/2, CANVAS_HEIGHT*1/3, 40, CANVAS_HEIGHT*2/3)
+    buildWall(CANVAS_WIDTH/2, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/4, 40)
+    buildWall(CANVAS_WIDTH*3/4, CANVAS_HEIGHT*2/3, CANVAS_WIDTH*1/4, 40)
+
+    buildFollower(CANVAS_WIDTH*1.5/4, CANVAS_HEIGHT*0.5/4, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH*2.5/4, CANVAS_HEIGHT*2/4, playerAcceleration/2)
+
+    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*9.2/10)
     trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
 end
 
@@ -367,10 +388,24 @@ function love.update(dt)
     processHoleCollisions()
     -- technically a misnomer - needs to be fully covered in bush
     triggerHidingPigsInBushes()
+
+    checkWin()
+end
+
+function checkWin()
+    local win = true
+    for _, follower in pairs(followers) do
+        if follower.mobility then
+            win = false
+        end
+    end
+
+    if win then
+        initLevel(currentLevel+1)
+    end
 end
 
 function triggerHidingPigsInBushes()
-
     for _, bush in pairs(bushes) do 
         local dx = player:position().x - bush.pos.x
         local dy = player:position().y - bush.pos.y
@@ -647,6 +682,15 @@ function love.draw()
         love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
     end
 
+    -- draw intro text
+    if gamePaused then
+        love.graphics.setColor(1, 1, 1, 0.8)
+        local border = CANVAS_HEIGHT/6
+        love.graphics.rectangle("fill", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
+        love.graphics.setColor(0.2, 0.2, 0.2, 1)
+        love.graphics.printf(description, border*1.5, border*1.5, CANVAS_WIDTH-3*border, "center")
+    end
+
     tlfres.endRendering()
 end
 
@@ -675,9 +719,4 @@ function drawBush(bush)
         love.graphics.circle("fill", bush.pos.x + bush.width + bush.heightRadius/5, bush.pos.y + i* bush.heightRadius, bush.heightRadius)
    
     end
-
-
-
-
-
 end
