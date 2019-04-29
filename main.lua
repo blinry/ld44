@@ -65,6 +65,18 @@ end
 
 function initGame()
     initLevel(1)
+    music.menu:play()
+end
+
+function setBackgroundMusic() 
+    if state == "title" then
+        music.quirkydog:stop()
+        music.menu:play()
+    elseif state == "game" then
+        music.menu:stop()
+        music.quirkydog:setVolume(.5)
+        music.quirkydog:play()
+    end
 end
 
 function resetGame()
@@ -615,11 +627,13 @@ function love.keypressed(key)
             love.event.quit()
         else
             state = "game"
+            setBackgroundMusic()
         end
     elseif state == "end" then
         if key == "escape" or key == "space" then
             initLevel(1)
             state = "title"
+            setBackgroundMusic()
         end
     else
         if gamePaused then
@@ -628,10 +642,12 @@ function love.keypressed(key)
                 reasonOfDeath = ""
             elseif key == "escape" then
                 state = "title"
+                setBackgroundMusic()
             end
         else
             if key == "escape" then
                 state = "title"
+                setBackgroundMusic()
             elseif key == "f" then
                 isFullscreen = love.window.getFullscreen()
                 love.window.setFullscreen(not isFullscreen)
