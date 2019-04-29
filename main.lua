@@ -727,7 +727,7 @@ function love.draw()
             if wall.class.name == "Door" then
                 image = images.door
             else
-                image = images.wall2c
+                image = images.wall
             end
 
             local opacity = 1
