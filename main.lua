@@ -119,8 +119,10 @@ function initLevel(n)
     currentLevel = n
 
     local levelInitializers = {
-        initLevel1,
-        initLevel2,
+        levelIntro,
+        levelKey,
+        levelHole,
+        levelFollow,
     }
 
     if levelInitializers[n] then
@@ -130,8 +132,28 @@ function initLevel(n)
     end
 end
 
-function initLevel1()
-    description = "Use arrow keys to move, and left control to drop coins."
+function levelIntro()
+    description = "Today's the day.\n\nThe day you will get out of here.\n\nPress arrow keys to move. Don't let those bankers get you!"
+
+    playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
+    player = Player:new(playerPos, playerSpeed, playerLifePoints)
+
+    buildOuterWalls()
+
+    buildWall(CANVAS_WIDTH/4, 0, 40, CANVAS_HEIGHT*3/4)
+    buildWall(CANVAS_WIDTH/2, CANVAS_HEIGHT*1/3, 40, CANVAS_HEIGHT*2/3)
+    buildWall(CANVAS_WIDTH/2, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/4, 40)
+    buildWall(CANVAS_WIDTH*3/4, CANVAS_HEIGHT*2/3, CANVAS_WIDTH*1/4, 40)
+
+    buildFollower(CANVAS_WIDTH*1.5/4, CANVAS_HEIGHT*0.5/4, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH*2.5/4, CANVAS_HEIGHT*2/4, playerAcceleration/2)
+
+    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*9.2/10)
+    trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
+end
+
+function levelKey()
+    description = "In the next room, you see a strangely-formed golden object. You decide to investigate more."
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*8/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -162,24 +184,48 @@ function initLevel1()
     buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
 end
 
--- introduce walls and goal flag
-function initLevel2()
-    description = "Don't let the bankers get you!"
+-- introduce holes
+function levelHole()
+    description = "Press any button to start"
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
 
     buildOuterWalls()
 
-    buildWall(CANVAS_WIDTH/4, 0, 40, CANVAS_HEIGHT*3/4)
-    buildWall(CANVAS_WIDTH/2, CANVAS_HEIGHT*1/3, 40, CANVAS_HEIGHT*2/3)
-    buildWall(CANVAS_WIDTH/2, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/4, 40)
-    buildWall(CANVAS_WIDTH*3/4, CANVAS_HEIGHT*2/3, CANVAS_WIDTH*1/4, 40)
+    buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*0, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3)
+    buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3+50, CANVAS_WIDTH*1/5, CANVAS_HEIGHT)
 
-    buildFollower(CANVAS_WIDTH*1.5/4, CANVAS_HEIGHT*0.5/4, playerAcceleration/2)
-    buildFollower(CANVAS_WIDTH*2.5/4, CANVAS_HEIGHT*2/4, playerAcceleration/2)
+    buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*0, CANVAS_WIDTH*1/10, CANVAS_HEIGHT*2/3)
+    buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3)
 
-    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*9.2/10)
+    buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*2/3+50, CANVAS_WIDTH*2/5, CANVAS_HEIGHT*1/3)
+    buildHole(CANVAS_WIDTH*4/5+50, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*2/3)
+
+    -- buildFollower(CANVAS_WIDTH*1.5/4, CANVAS_HEIGHT*0.5/4, playerAcceleration/2)
+    -- buildFollower(CANVAS_WIDTH*2.5/4, CANVAS_HEIGHT*2/4, playerAcceleration/2)
+
+    buildFollower(CANVAS_WIDTH*1/9, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+
+    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*1.2/10)
+    trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
+end
+
+-- introduce coin following
+function levelFollow()
+    description = "Be careful not to kill any bankers in the spiky pits.\n\nAfter all, you're a piggy bank, not a monster."
+
+    playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT*9/10)
+    player = Player:new(playerPos, playerSpeed, playerLifePoints)
+
+    buildOuterWalls()
+
+    buildWall(CANVAS_WIDTH*1/4, CANVAS_HEIGHT*1/4, 50, CANVAS_HEIGHT*3/4)
+    buildHole(CANVAS_WIDTH*1/8, CANVAS_HEIGHT*1/4, CANVAS_WIDTH*1/8, CANVAS_HEIGHT/2)
+
+    buildFollower(CANVAS_WIDTH*1/9, CANVAS_HEIGHT*9/10, playerAcceleration/2)
+
+    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*1.2/10)
     trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
 end
 
@@ -323,7 +369,6 @@ function calculateOverlapBetweenHoleAndEntity(hole, movingObject)
     -- return (area1 + area2 - areaI);
 end
 
-
 function buildHole(x, y, w, h)
     hole_pos = vector(x, y)
     hole = Hole:new(hole_pos, w, h)
@@ -422,8 +467,6 @@ function triggerHidingPigsInBushes()
 
 end
 
-
-
 function processHoleCollisions()
     follower_delete_list = nil
 
@@ -434,18 +477,10 @@ function processHoleCollisions()
             local area = 4*follower:radius()^2
 
             if pixelOverlap > area/2 then
-                follower_delete_list = {next = follower_delete_list, value = idx}
-                break
+                die("You killed a banker.")
+                return
             end
         end
-    end
-
-    local l = follower_delete_list
-    while l do
-        follower = followers[l.value]
-        follower.body:destroy()
-        table.remove(followers, l.value)
-        l = l.next
     end
 
     for _, hole in pairs(holes) do
@@ -454,14 +489,15 @@ function processHoleCollisions()
         local area = 4*player:radius()^2
 
         if pixelOverlap > area/2 then
-            die()
+            die("You died in a spiky pit.")
+            return
         end
     end
-
 end
 
-function die()
+function die(reason)
     currentBreadCrumb = nil
+    reasonOfDeath = reason
     initLevel(currentLevel)
 end
 
@@ -623,8 +659,8 @@ function love.draw()
     -- draw holes
     for _, hole in pairs(holes) do
         -- change color of holes later with fabrics
-        love.graphics.setColor(1, 1, 1, 1) -- set color of holes
-        -- love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
+        love.graphics.setColor(0, 0, 0, 1) -- set color of holes
+        love.graphics.rectangle("fill", hole.pos.x, hole.pos.y, hole.width, hole.height)
         love.graphics.draw(images.hole, hole.pos.x, hole.pos.y, 0, hole.width/images.hole:getWidth(), hole.height/images.hole:getHeight())
     end
 
@@ -683,12 +719,20 @@ function love.draw()
     end
 
     -- draw intro text
-    if gamePaused then
-        love.graphics.setColor(1, 1, 1, 0.8)
-        local border = CANVAS_HEIGHT/6
+    if gamePaused and (description ~= "" or reasonOfDeath ~= "") then
+        love.graphics.setColor(0.7, 0.7, 0.8, 0.8)
+        local border = CANVAS_HEIGHT/5
         love.graphics.rectangle("fill", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
         love.graphics.setColor(0.2, 0.2, 0.2, 1)
-        love.graphics.printf(description, border*1.5, border*1.5, CANVAS_WIDTH-3*border, "center")
+
+        local text = ""
+        if reasonOfDeath then
+            text = reasonOfDeath .. "\n\nPress any key to try again."
+        else
+            text = description
+        end
+
+        love.graphics.printf(text, border*1.5, border*1.5, CANVAS_WIDTH-3*border, "center")
     end
 
     tlfres.endRendering()
