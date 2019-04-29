@@ -21,6 +21,8 @@ CANVAS_HEIGHT = 1080
 state = "title"
 currentLevel = 1
 
+CRUMB_LIFE_POINTS = 10
+
 function love.load()
     math.randomseed(os.time())
 
@@ -176,7 +178,7 @@ function levelKey()
     buildWall(CANVAS_WIDTH*4/5+50, 0, 40, CANVAS_HEIGHT/2)
     buildWall(CANVAS_WIDTH*3/5, CANVAS_HEIGHT/2, CANVAS_WIDTH*1/5+40+50, 40)
 
-    buildDoor(CANVAS_WIDTH*3/5, CANVAS_HEIGHT/2+40, 40, CANVAS_HEIGHT/2)
+    buildDoor(CANVAS_WIDTH*3/5, CANVAS_HEIGHT/2+40, 40, CANVAS_HEIGHT/2-40-10)
 
     buildHole(CANVAS_WIDTH*1.8/5, CANVAS_HEIGHT*1/7, CANVAS_WIDTH/8, CANVAS_HEIGHT/5)
 
@@ -342,8 +344,6 @@ function buildBush()
 end
 
 function placeFollowersInBush(bush)
-   
-    
     for i = 1,5 do
         followerAcceleration = playerAcceleration / 2
         variation = math.random(0, followerAcceleration/3)
@@ -357,10 +357,7 @@ function placeFollowersInBush(bush)
         table.insert(followers, follower)
         table.insert(bush.hiding_entities, follower)
     end
-
-
 end
-
 
 function calculateOverlapBetweenHoleAndEntity(hole, movingObject)
     -- model entity and hole as square
@@ -528,12 +525,6 @@ end
 
 function collide(dt)
     for i,crumb in pairs(breadCrumbs) do
-        -- for _, follower in pairs(followers) do
-            -- diff = crumb.pos - vector(follower.body:getPosition())
-            -- if diff:len() < crumb:radius() then
-                -- suckBreadCrumb(crumb, i, dt, follower)
-                -- table.remove(breadCrumbs, i)
-            -- end
         collided = overlapFollowers(crumb.pos, crumb:radius())
         if collided then
             suckBreadCrumb(crumb, i, dt, collided)
@@ -553,6 +544,15 @@ function collide(dt)
         end
     end
 
+    for i, crumb in pairs(breadCrumbs) do
+        local diff = crumb.pos - vector(player.body:getPosition())
+        timeSincePlaced = love.timer.getTime() - crumb.timePlaced
+        if diff:len() < crumb:radius()+player:radius() and timeSincePlaced > 1 then
+            table.remove(breadCrumbs, i)
+            player.lifePoints = player.lifePoints + CRUMB_LIFE_POINTS
+        end
+    end
+
     for i, pickup in pairs(pickups) do
         local diff = pickup.pos - vector(player.body:getPosition())
         if diff:len() < pickup:radius()+player:radius() then
@@ -560,11 +560,6 @@ function collide(dt)
             player.currentlyHeld = pickup
             sounds.key:play()
         end
-        -- collided = overlapFollowers(pickup.pos, pickup:radius())
-        -- if collided then
-        --     table.remove(pickups, i)
-        --     collided.currentlyHeld = pickup
-        -- end
     end
 end
 
@@ -660,12 +655,14 @@ function love.keypressed(key)
             elseif key == "r" then
                 die()
             elseif key == "lctrl" then
-                local crumbLifePoints = 10
-                if player.lifePoints > crumbLifePoints then
+                if player.lifePoints > CRUMB_LIFE_POINTS then
                     sounds.coindrop:play()
-                    local currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), crumbLifePoints)
+                    local currentBreadCrumb = BreadCrumb:new(
+                        vector(player.body:getPosition()),
+                        CRUMB_LIFE_POINTS,
+                        love.timer.getTime())
                     table.insert(breadCrumbs, currentBreadCrumb)
-                    player.lifePoints = player.lifePoints - crumbLifePoints
+                    player.lifePoints = player.lifePoints - CRUMB_LIFE_POINTS
                 end
             end
         end
@@ -726,9 +723,40 @@ function love.draw()
     else
 
         -- draw wall
+        local offsetx = 3
+        local offsety = 10
         for _, wall in pairs(walls) do
-            love.graphics.setColor(wall.color.r, wall.color.g, wall.color.b, wall.color.a) -- set color of walls
-            love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
+            local image = nil
+            if wall.class.name == "Door" then
+                image = images.door
+            else
+                image = images.wall
+            end
+
+            local opacity = 1
+            if wall.locked ~= nil and wall.locked == false then
+                opacity = 0.1
+            end
+
+            if wall.width > wall.height then
+                love.graphics.setColor(0.5, 0.5, 0.5, opacity)
+                love.graphics.draw(image, wall.pos.x+offsetx, wall.pos.y+offsety, 0, wall.width/image:getWidth(), wall.height/image:getHeight())
+                love.graphics.setColor(1, 1, 1, opacity)
+                love.graphics.draw(image, wall.pos.x, wall.pos.y, 0, wall.width/image:getWidth(), wall.height/image:getHeight())
+            else
+                love.graphics.setColor(0.5, 0.5, 0.5, opacity)
+                love.graphics.draw(image, wall.pos.x+wall.width+offsetx, wall.pos.y+offsety, math.pi/2, wall.height/image:getWidth(), wall.width/image:getHeight())
+                love.graphics.setColor(1, 1, 1, opacity)
+                love.graphics.draw(image, wall.pos.x+wall.width, wall.pos.y, math.pi/2, wall.height/image:getWidth(), wall.width/image:getHeight())
+            end
+
+            if wall.class.name == "Door" then
+                local f = 0.2
+                love.graphics.draw(images.keyhole, wall.pos.x+wall.width/2-images.keyhole:getWidth()/2*f, wall.pos.y+wall.height/2-images.keyhole:getHeight()/2*f, 0, f, f)
+            end
+
+            --love.graphics.setColor(wall.color.r, wall.color.g, wall.color.b, 0.8) -- set color of walls
+            --love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
         end
 
         -- draw holes
@@ -773,6 +801,11 @@ function love.draw()
                 love.graphics.setColor(0.5, 1, 0.5, 1)
             end
             love.graphics.draw(images.pig, followerX, followerY, 0, followerScale*follower.flip, followerScale, images.pig:getWidth()/2, images.pig:getHeight()/2)
+
+            if follower.mobility == false then
+                love.graphics.draw(images.cage, followerX, followerY, 0, followerScale*2, followerScale*2, images.cage:getWidth()/2, images.cage:getHeight()/2)
+            end
+
             -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
             -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
         end
