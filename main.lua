@@ -68,7 +68,7 @@ function initGame()
 end
 
 function resetGame()
-    currentBreadCrumb = nil
+    -- currentBreadCrumb = nil
 
     breadCrumbs = {}
     walls = {}
@@ -146,6 +146,14 @@ function initLevel1()
 
     buildKey(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*1/4)
 
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
+    buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
     buildFollower(CANVAS_WIDTH/4, CANVAS_HEIGHT*5/6, playerAcceleration/2)
 end
 
@@ -345,16 +353,16 @@ function love.update(dt)
     -- Deprecatation pending!
     collide(dt)
 
-    if currentBreadCrumb then
-        currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
-        currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()
-        currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease/2
-        player.lifePoints = player.lifePoints - lifeIncrease/2
-    else
-        if player.lifePoints < playerLifePoints then
-            player.lifePoints = player.lifePoints + lifeIncrease/20
-        end
+    -- if currentBreadCrumb then
+    --     currentBreadCrumb.pos.x, currentBreadCrumb.pos.y = player.body:getPosition()
+    --     currentBreadCrumb.pos.y = currentBreadCrumb.pos.y - player:radius()
+    --     currentBreadCrumb.lifePoints = currentBreadCrumb.lifePoints + lifeIncrease/2
+    --     player.lifePoints = player.lifePoints - lifeIncrease/2
+    -- else
+    if player.lifePoints < playerLifePoints then
+        player.lifePoints = player.lifePoints + lifeIncrease/20
     end
+    -- end
 
     processHoleCollisions()
     -- technically a misnomer - needs to be fully covered in bush
@@ -491,6 +499,7 @@ function findTarget(follower)
     local targets = table.shallow_copy(breadCrumbs)
     table.insert(targets, player)
     for i,target in pairs(targets) do
+
         diff = target:position() - follower:position()
         a = target:attractiveness()/diff:len()
         if a > currentHighestAttractiveness then
@@ -537,19 +546,23 @@ function love.keypressed(key)
     elseif string.find(key, "%d") then
         initLevel(tonumber(key))
     elseif key == "lctrl" then
-        currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), 0)
-        table.insert(breadCrumbs, currentBreadCrumb)
-    end
-end
-
-function love.keyreleased(key)
-    if key == "lctrl" then
-        if currentBreadCrumb then
-            currentBreadCrumb.pos = currentBreadCrumb.pos:clone()
-            currentBreadCrumb = nil
+        local crumbLifePoints = 10
+        if player.lifePoints > crumbLifePoints then
+            local currentBreadCrumb = BreadCrumb:new(vector(player.body:getPosition()), crumbLifePoints)
+            table.insert(breadCrumbs, currentBreadCrumb)
+            player.lifePoints = player.lifePoints - crumbLifePoints
         end
     end
 end
+
+-- function love.keyreleased(key)
+--     if key == "lctrl" then
+--         if currentBreadCrumb then
+--             currentBreadCrumb.pos = currentBreadCrumb.pos:clone()
+--             currentBreadCrumb = nil
+--         end
+--     end
+-- end
 
 function love.mousepressed(x, y, button)
 end
@@ -595,7 +608,7 @@ function love.draw()
     if player.currentlyHeld then
         love.graphics.setColor(0.5, 1, 0.5, 1)
     end
-    local playerScale = player:radius()/50
+    local playerScale = math.max(player:radius()/50, 0.2)
     local playerX, playerY = player.body:getPosition()
     love.graphics.draw(images.piggy, playerX, playerY, 0, playerScale*player.flip, playerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
     -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
