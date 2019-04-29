@@ -184,10 +184,10 @@ function beginContact(a, b, collision)
     local aClass = a:getUserData().class.name
     local bClass = b:getUserData().class.name
 
-    if aClass == "Door" and bClass == "Follower" and bObject.currentlyHeld
+    if aClass == "Door" and bClass == "Player" and bObject.currentlyHeld
         then aObject.locked = false
     end
-    if bClass == "Door" and aClass == "Follower" and aObject.currentlyHeld
+    if bClass == "Door" and aClass == "Player" and aObject.currentlyHeld
         then bObject.locked = false
     end
 
@@ -459,11 +459,16 @@ function collide(dt)
     end
 
     for i, pickup in pairs(pickups) do
-        collided = overlapFollowers(pickup.pos, pickup:radius())
-        if collided then
+        local diff = pickup.pos - vector(player.body:getPosition())
+        if diff:len() < pickup:radius()+player:radius() then
             table.remove(pickups, i)
-            collided.currentlyHeld = pickup
+            player.currentlyHeld = pickup
         end
+        -- collided = overlapFollowers(pickup.pos, pickup:radius())
+        -- if collided then
+        --     table.remove(pickups, i)
+        --     collided.currentlyHeld = pickup
+        -- end
     end
 end
 
@@ -587,6 +592,9 @@ function love.draw()
 
     -- draw player
     love.graphics.setColor(1, 1, 1, 1) -- set color of player
+    if player.currentlyHeld then
+        love.graphics.setColor(0.5, 1, 0.5, 1)
+    end
     local playerScale = player:radius()/50
     local playerX, playerY = player.body:getPosition()
     love.graphics.draw(images.piggy, playerX, playerY, 0, playerScale*player.flip, playerScale, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
