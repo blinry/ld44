@@ -175,7 +175,7 @@ function levelKey()
     buildWall(CANVAS_WIDTH*4/5+50, 0, 40, CANVAS_HEIGHT/2)
     buildWall(CANVAS_WIDTH*3/5, CANVAS_HEIGHT/2, CANVAS_WIDTH*1/5+40+50, 40)
 
-    buildDoor(CANVAS_WIDTH*3/5, CANVAS_HEIGHT/2+40, 40, CANVAS_HEIGHT/2)
+    buildDoor(CANVAS_WIDTH*3/5, CANVAS_HEIGHT/2+40, 40, CANVAS_HEIGHT/2-40-10)
 
     buildHole(CANVAS_WIDTH*1.8/5, CANVAS_HEIGHT*1/7, CANVAS_WIDTH/8, CANVAS_HEIGHT/5)
 
@@ -720,9 +720,40 @@ function love.draw()
     else
 
         -- draw wall
+        local offsetx = 3
+        local offsety = 10
         for _, wall in pairs(walls) do
-            love.graphics.setColor(wall.color.r, wall.color.g, wall.color.b, wall.color.a) -- set color of walls
-            love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
+            local image = nil
+            if wall.class.name == "Door" then
+                image = images.door
+            else
+                image = images.wall2c
+            end
+
+            local opacity = 1
+            if wall.locked ~= nil and wall.locked == false then
+                opacity = 0.1
+            end
+
+            if wall.width > wall.height then
+                love.graphics.setColor(0.5, 0.5, 0.5, opacity)
+                love.graphics.draw(image, wall.pos.x+offsetx, wall.pos.y+offsety, 0, wall.width/image:getWidth(), wall.height/image:getHeight())
+                love.graphics.setColor(1, 1, 1, opacity)
+                love.graphics.draw(image, wall.pos.x, wall.pos.y, 0, wall.width/image:getWidth(), wall.height/image:getHeight())
+            else
+                love.graphics.setColor(0.5, 0.5, 0.5, opacity)
+                love.graphics.draw(image, wall.pos.x+wall.width+offsetx, wall.pos.y+offsety, math.pi/2, wall.height/image:getWidth(), wall.width/image:getHeight())
+                love.graphics.setColor(1, 1, 1, opacity)
+                love.graphics.draw(image, wall.pos.x+wall.width, wall.pos.y, math.pi/2, wall.height/image:getWidth(), wall.width/image:getHeight())
+            end
+
+            if wall.class.name == "Door" then
+                local f = 0.2
+                love.graphics.draw(images.keyhole, wall.pos.x+wall.width/2-images.keyhole:getWidth()/2*f, wall.pos.y+wall.height/2-images.keyhole:getHeight()/2*f, 0, f, f)
+            end
+
+            --love.graphics.setColor(wall.color.r, wall.color.g, wall.color.b, 0.8) -- set color of walls
+            --love.graphics.rectangle("fill", wall.pos.x, wall.pos.y, wall.width, wall.height)
         end
 
         -- draw holes
