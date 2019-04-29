@@ -71,11 +71,11 @@ end
 function setBackgroundMusic() 
     if state == "title" then
         music.quirkydog:stop()
-        music.menu:setVolume(.5)
+        music.menu:setVolume(.2)
         music.menu:play()
     elseif state == "game" then
         music.menu:stop()
-        music.quirkydog:setVolume(.2)
+        music.quirkydog:setVolume(.1)
         music.quirkydog:play()
     end
 end
@@ -271,11 +271,14 @@ function beginContact(a, b, collision)
     local aClass = a:getUserData().class.name
     local bClass = b:getUserData().class.name
 
-    if aClass == "Door" and bClass == "Player" and bObject.currentlyHeld
-        then aObject.locked = false
+    if aClass == "Door" and bClass == "Player" and bObject.currentlyHeld then 
+        aObject.locked = false
+        sounds.dooropening:play()
+        
     end
-    if bClass == "Door" and aClass == "Player" and aObject.currentlyHeld
-        then bObject.locked = false
+    if bClass == "Door" and aClass == "Player" and aObject.currentlyHeld then
+        bObject.locked = false
+        sounds.dooropening:play()
     end
 
 
