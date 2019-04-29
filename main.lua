@@ -85,6 +85,9 @@ end
 function resetGame()
     -- currentBreadCrumb = nil
 
+    title = ""
+    description = ""
+
     breadCrumbs = {}
     walls = {}
     pickups = {}
@@ -97,6 +100,7 @@ function resetGame()
     world:setCallbacks(beginContact, endContact)
 
     playerLifePoints = 50
+    playerLifePointsStep = 4
     playerAcceleration = 100000
     playerSpeed = CANVAS_WIDTH/5
     -- player = Entity:new(playerPos, playerSpeed, playerLifePoints)
@@ -134,9 +138,9 @@ function initLevel(n)
 
     local levelInitializers = {
         levelIntro,
-        levelKey,
-        levelHole,
         levelFollow,
+        levelHole,
+        levelKey,
     }
 
     if levelInitializers[n] then
@@ -147,7 +151,8 @@ function initLevel(n)
 end
 
 function levelIntro()
-    description = "Today's the day.\nThe day you will get out of this bank.\n\nPress arrow keys to move. Guide all bankers to the flag post to trap them!\n\nOink."
+    title = "Today's the day"
+    description = "You've been held as a prisoner in this bank for your whole life. The bankers treated you poorly, and even tried to put a bottle cap in you at one point. You decide that today, you will get your revenge.\n\nPress arrow keys to move. Guide all bankers to the flag post to trap them!"
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -167,7 +172,8 @@ function levelIntro()
 end
 
 function levelKey()
-    description = "In the next room, you see a strangely-formed golden object. You decide to investigate more."
+    title = "The Object"
+    description = "On the next floor, you spot a strangely-formed golden object. You've never seen something like that before, and you decide to investigate more."
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*8/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -200,7 +206,8 @@ end
 
 -- introduce holes
 function levelHole()
-    description = "Press any button to start"
+    title = "Barricade"
+    description = "At this point, word about your breakout attempt has started to spread. Some bankers have started to barricade themselves. But maybe you can use their greed for money to lure them out and trap them, without killing them?\n\nPress left control to drop coins."
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -227,7 +234,8 @@ end
 
 -- introduce coin following
 function levelFollow()
-    description = "Be careful not to kill any bankers in the spiky pits.\n\nAfter all, you're a piggy bank, not a monster."
+    title = "Currency is your life"
+    description = "The bankers have built a scary-looking blockade to prevent you from progressing. You decide to carefully make your way through that, being careful not to kill the bankers while doing that.\n\nAfter all, you're a piggy bank, not a monster."
 
     playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT*9/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -510,6 +518,7 @@ end
 function die(reason)
     currentBreadCrumb = nil
     sounds.death:play()
+    title = ""
     reasonOfDeath = reason
     initLevel(currentLevel)
 end
@@ -772,14 +781,15 @@ function love.draw()
         end
 
 
-        if trap.gotFollower == true then
-            -- change color to red
-            love.graphics.setColor(0,255,0,255)
-        else
-            -- change color to green
-            love.graphics.setColor(255, 0, 0, 255)
-        end
-        love.graphics.circle("fill", trap.pos.x, trap.pos.y, trap.radius)
+        -- if trap.gotFollower == true then
+        --     -- change color to red
+        --     love.graphics.setColor(0,255,0,255)
+        -- else
+        --     -- change color to green
+        --     love.graphics.setColor(255, 0, 0, 255)
+        -- end
+        love.graphics.setColor(0.8, 0.45, 0.2, 1)
+        love.graphics.draw(images.vault, trap.pos.x-trap.radius, trap.pos.y-trap.radius, 2*trap.radius/images.vault:getWidth(), 2*trap.radius/(images.vault:getHeight()))
 
         -- draw player
         love.graphics.setColor(1, 1, 1, 1) -- set color of player
@@ -788,7 +798,7 @@ function love.draw()
         end
         local playerScale = math.max(player:radius()/200, 0.2)
         local playerX, playerY = player.body:getPosition()
-        love.graphics.draw(images.pig, playerX, playerY, 0, playerScale*player.flip, playerScale, images.pig:getWidth()/2, images.pig:getHeight()/2)
+        love.graphics.draw(images.pigNaked, playerX, playerY, 0, playerScale*player.flip, playerScale, images.pig:getWidth()/2, images.pig:getHeight()/2)
         -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
         -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
 
@@ -816,8 +826,11 @@ function love.draw()
         end
 
         -- draw health bars
-        love.graphics.setColor(0.3, 0.3, 0.7, 1)
-        love.graphics.rectangle("fill", 0, 0, CANVAS_WIDTH*player.lifePoints/playerLifePoints, 30)
+        local lifeCoins = math.floor(player.lifePoints / playerLifePointsStep)
+        for i=0, lifeCoins do 
+            love.graphics.draw(images.coin, 15 + (i*60), 15, 0, .5, .5)
+        end
+        
 
         -- draw bushes
         for _, bush in pairs(bushes) do
@@ -830,9 +843,8 @@ function love.draw()
             love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
         end
 
-        -- draw intro text
+        -- draw description
         if gamePaused and (description ~= "" or reasonOfDeath ~= "") then
-        love.graphics.setFont(fonts.vollkorn[35])
             love.graphics.setColor(0.7, 0.7, 0.7, 0.8)
             local border = CANVAS_HEIGHT/5
             love.graphics.rectangle("fill", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
@@ -841,14 +853,21 @@ function love.draw()
             love.graphics.rectangle("line", border, border, CANVAS_WIDTH-2*border, CANVAS_HEIGHT-2*border)
 
             local text = ""
-            if reasonOfDeath then
+            if reasonOfDeath and reasonOfDeath ~= "" then
                 text = reasonOfDeath .. "\n\n(Press space to try again.)"
             else
                 text = description .. "\n\n(Press space to start.)"
             end
 
             love.graphics.setColor(0.2, 0.2, 0.2, 1)
-            love.graphics.printf(text, border*1.5, border+50, CANVAS_WIDTH-3*border, "center")
+
+            if title and title ~= "" then
+                love.graphics.setFont(fonts.vollkorn[50])
+                love.graphics.printf(title, border*1.5, border+50, CANVAS_WIDTH-3*border, "center")
+            end
+
+            love.graphics.setFont(fonts.vollkorn[35])
+            love.graphics.printf(text, border*1.5, border+50+120, CANVAS_WIDTH-3*border, "center")
         end
     end
 
