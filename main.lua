@@ -71,10 +71,11 @@ end
 function setBackgroundMusic() 
     if state == "title" then
         music.quirkydog:stop()
+        music.menu:setVolume(.5)
         music.menu:play()
     elseif state == "game" then
         music.menu:stop()
-        music.quirkydog:setVolume(.5)
+        music.quirkydog:setVolume(.2)
         music.quirkydog:play()
     end
 end
@@ -508,6 +509,7 @@ end
 
 function die(reason)
     currentBreadCrumb = nil
+    sounds.death:play()
     reasonOfDeath = reason
     initLevel(currentLevel)
 end
