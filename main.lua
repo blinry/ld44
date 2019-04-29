@@ -129,7 +129,7 @@ function initLevel(n)
     if levelInitializers[n] then
         levelInitializers[n]()
     else
-        initLevel(1)
+        state = "end"
     end
 end
 
@@ -383,7 +383,7 @@ function buildDoor(x, y, w, h)
 end
 
 function love.update(dt)
-    if gamePaused then
+    if gamePaused or state ~= "game" then
         return
     end
 
@@ -605,12 +605,22 @@ function love.mouse.getPosition()
 end
 
 function love.keypressed(key)
+    if string.find(key, "%d") then
+        state = "game"
+        initLevel(tonumber(key))
+        return
+    end
+
     if state == "title" then
         if key == "escape" then
             love.window.setFullscreen(false)
             love.event.quit()
         else
             state = "game"
+        end
+    elseif state == "end" then
+        if key == "escape" or key == "space" then
+            state = "title"
         end
     else
         if gamePaused then
@@ -627,8 +637,6 @@ function love.keypressed(key)
                 love.window.setFullscreen(not isFullscreen)
             elseif key == "r" then
                 die()
-            elseif string.find(key, "%d") then
-                initLevel(tonumber(key))
             elseif key == "lctrl" then
                 local crumbLifePoints = 10
                 if player.lifePoints > crumbLifePoints then
@@ -672,6 +680,14 @@ function love.draw()
 
         love.graphics.setFont(fonts.vollkorn[50])
         love.graphics.printf("Made in 72 hours\nfor Ludum Dare 44\n\nby Agustín Ramos Anzorena, Alan Chu,\n Byung Shin, Sebastian Morr, and Tim Vieregge\n\n\nPress any key to start!", 0, 100+300, CANVAS_WIDTH, "center")
+
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(images.piggy, 300, 450, 0, 2, 2, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
+        love.graphics.draw(images.coin, 1600, 450, 0, 2, 2, images.coin:getWidth()/2, images.coin:getHeight()/2)
+    elseif state == "end" then
+        love.graphics.setColor(0.2, 0.2, 0.2)
+        love.graphics.setFont(fonts.vollkorn[50])
+        love.graphics.printf("You made it out of the bank!\n\nThanks for playing! :)\n\n(Press space to return to the title screen.)", 0, 100+300, CANVAS_WIDTH, "center")
 
         love.graphics.setColor(1, 1, 1)
         love.graphics.draw(images.piggy, 300, 450, 0, 2, 2, images.piggy:getWidth()/2, images.piggy:getHeight()/2)
