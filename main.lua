@@ -20,7 +20,6 @@ CANVAS_HEIGHT = 1080
 
 state = "title"
 currentLevel = 1
-subtraps = {}
 CRUMB_LIFE_POINTS = 10
 
 function love.load()
@@ -110,6 +109,7 @@ function resetGame()
 
     math.randomseed(os.time())
 
+    subtraps = {}
     followers = {}
     --for i = 1,3 do
     --    followerPos = vector(math.random(0, CANVAS_WIDTH), math.random(0, CANVAS_HEIGHT))
@@ -222,7 +222,7 @@ end
 
 function levelIntro()
     title = "Today's the day"
-    description = "You've been held as a prisoner in this bank for your whole life. The bankers treated you poorly, and even tried to put a bottle cap in you at one point. You decide that today, you will get your revenge.\n\nPress arrow keys to move. Guide all bankers to the flag post to trap them!"
+    description = "You've been held as a prisoner in this bank for your whole life. The bankers treated you poorly, and even tried to put a bottle cap in you at one point. You decide that today, you will get your revenge.\n\nPress arrow keys to move. Guide all those capitalist pigs to the vault door to trap them!"
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -237,7 +237,7 @@ function levelIntro()
     buildFollower(CANVAS_WIDTH*1.5/4, CANVAS_HEIGHT*0.5/4, playerAcceleration/2)
     buildFollower(CANVAS_WIDTH*2.5/4, CANVAS_HEIGHT*2/4, playerAcceleration/2)
 
-    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*9.2/10)
+    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*8.0/10)
     trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
 end
 
@@ -258,7 +258,7 @@ function levelKey()
 
     buildHole(CANVAS_WIDTH*1.8/5, CANVAS_HEIGHT*1/7, CANVAS_WIDTH/8, CANVAS_HEIGHT/5)
 
-    trap_pos = vector(CANVAS_WIDTH*9.2/10, CANVAS_HEIGHT*1/10)
+    trap_pos = vector(CANVAS_WIDTH*9.6/10, CANVAS_HEIGHT*1/10)
     trap = Trap:new(trap_pos, CANVAS_WIDTH/15)
 
     buildKey(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*1/4)
@@ -277,7 +277,7 @@ end
 -- introduce holes
 function levelHole()
     title = "Barricade"
-    description = "At this point, word about your breakout attempt has started to spread. Some bankers have started to barricade themselves. But maybe you can use their greed for money to lure them out and trap them, without killing them?\n\nPress left control to drop coins."
+    description = "At this point, word about your breakout attempt has started to spread. Some bankers have started to barricade themselves. But maybe you can use their greed for money to lure them out and trap them, without killing them?\n\nPress left control or shift to drop coins."
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -286,7 +286,7 @@ function levelHole()
 
     buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*0, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3)
     buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3+50, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3)
-    buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*2/3, CANVAS_WIDTH*1/5, CANVAS_HEIGHT)
+    buildHole(CANVAS_WIDTH*1/5, CANVAS_HEIGHT*2/3, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3)
 
     buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*0, CANVAS_WIDTH*1/10, CANVAS_HEIGHT*2/3)
     buildHole(CANVAS_WIDTH*3/5, CANVAS_HEIGHT*1/3, CANVAS_WIDTH*1/5, CANVAS_HEIGHT*1/3)
@@ -303,7 +303,7 @@ end
 -- introduce coin following
 function levelFollow()
     title = "Currency is your life"
-    description = "The bankers have built a scary-looking blockade to prevent you from progressing. You decide to carefully make your way through that, being careful not to kill the bankers while doing that.\n\nAfter all, you're a piggy bank, not a monster."
+    description = "The bankers have built a scary-looking blockade to prevent you from progressing. You decide to carefully make your way through that, being careful not to kill the bankers while doing that.\n\nAfter all, you're a piggy bank, not a monster.\n\nPress left control or shift to drop coins."
 
     playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT*9/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -311,7 +311,7 @@ function levelFollow()
     buildOuterWalls()
 
     buildWall(CANVAS_WIDTH*1/4, CANVAS_HEIGHT*1/4, 50, CANVAS_HEIGHT*3/4)
-    buildHole(CANVAS_WIDTH*1/8, CANVAS_HEIGHT*1/4, CANVAS_WIDTH*1/8, CANVAS_HEIGHT/2)
+    buildHole(CANVAS_WIDTH*1/8, CANVAS_HEIGHT*1/2, CANVAS_WIDTH*1/8, CANVAS_HEIGHT/4)
 
     buildFollower(CANVAS_WIDTH*1/9, CANVAS_HEIGHT*9/10, playerAcceleration/2)
 
@@ -798,7 +798,7 @@ function love.draw()
     if state == "title" then
         love.graphics.setColor(0.2, 0.2, 0.2)
         love.graphics.setFont(fonts.vollkorn[150])
-        love.graphics.printf("Piggy's Escape", 0, 100, CANVAS_WIDTH, "center")
+        love.graphics.printf("Capitalist Piggies", 0, 100, CANVAS_WIDTH, "center")
 
         love.graphics.setFont(fonts.vollkorn[50])
         love.graphics.printf("Made in 72 hours\nfor Ludum Dare 44\n\nby Agustín Ramos Anzorena, Alan Chu,\n Byung Joo Shin, Sebastian Morr, and Tim Vieregge\n\n\nPress any key to start!", 0, 100+300, CANVAS_WIDTH, "center")
@@ -857,7 +857,7 @@ function love.draw()
         for _, hole in pairs(holes) do
             -- change color of holes later with fabrics
             love.graphics.setColor(1, 1, 1, 1) -- set color of holes
-            local spikeheight = 43
+            local spikeheight = 72
             local f = hole.height/(images.pit:getHeight()-spikeheight)
             local offset = spikeheight*f
             love.graphics.draw(images.pit, hole.pos.x, hole.pos.y-offset, 0, hole.width/images.pit:getWidth(), hole.height/(images.pit:getHeight()-spikeheight))
@@ -877,16 +877,10 @@ function love.draw()
         love.graphics.draw(images.vault, trap.pos.x-trap.radius, trap.pos.y-trap.radius, 2*trap.radius/images.vault:getWidth(), 2*trap.radius/(images.vault:getHeight()))
 
 
-        for _, subtrap in pairs(subtraps) do
-            if subtrap.gotFollower == true then
-                -- change color to red
-                love.graphics.setColor(0,255,0,255)
-            else
-                -- change color to green
-                love.graphics.setColor(255, 0, 0, 255)
-            end
-            love.graphics.circle("fill", subtrap.pos.x, subtrap.pos.y, subtrap.radius)
-        end
+        -- for _, subtrap in pairs(subtraps) do
+        --     love.graphics.setColor(0.8, 0.45, 0.2, 1)
+        --     love.graphics.draw(images.vault, subtrap.pos.x-subtrap.radius, subtrap.pos.y-subtrap.radius, 2*subtrap.radius/images.vault:getWidth(), 2*subtrap.radius/(images.vault:getHeight()))
+        -- end
 
         -- draw player
         love.graphics.setColor(1, 1, 1, 1) -- set color of player
@@ -917,27 +911,28 @@ function love.draw()
             -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
         end
 
+        love.graphics.setColor(1, 1, 1, 1)
         -- draw crumbdrops
         for _, breadCrumb in pairs(breadCrumbs) do
             drawCrumb(breadCrumb)
-        end
-
-        -- draw health bars
-        local lifeCoins = math.floor(player.lifePoints / playerLifePointsStep)
-        for i=0, lifeCoins do 
-            love.graphics.draw(images.coin, 15 + (i*60), 15, 0, .5, .5)
         end
         
 
         -- draw bushes
         for _, bush in pairs(bushes) do
-            drawBush(bush)
+            love.graphics.draw(images.bush, bush.pos.x+50, bush.pos.y+50, 0, 2, 2, images.bush:getWidth()/2, images.bush:getHeight()/2)
         end
 
         -- draw pickups
         love.graphics.setColor(1, 1, 1, 1)
         for _, pickup in pairs(pickups) do
             love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 0.8, 0.8, images.key:getWidth()/2, images.key:getHeight()/2)
+        end
+
+        -- draw health bars
+        local lifeCoins = math.floor(player.lifePoints / playerLifePointsStep)
+        for i=0, lifeCoins do 
+            love.graphics.draw(images.coin, 15 + (i*60), 15, 0, .5, .5)
         end
 
         -- draw description
@@ -977,23 +972,4 @@ function drawCrumb(crumb)
 
     love.graphics.setColor(1, 1, 1, 0.8) -- set color of crumb drop
     love.graphics.draw(images.coin, crumb.pos.x, crumb.pos.y, 0, crumbScale, crumbScale, images.coin:getWidth()/2, images.coin:getHeight()/2)
-end
-
-function drawBush(bush)
-    love.graphics.setColor(0, 166, 0, 200) -- set color of crumb drop
-    love.graphics.rectangle("fill", bush.pos.x, bush.pos.y, bush.width, bush.height)
-    width_circles = width/bush.widthRadius - 1
-    height_circles = height/bush.heightRadius - 1
-    for i = 1,width_circles,1
-    do 
-       love.graphics.circle("fill", bush.pos.x + i * bush.widthRadius, bush.pos.y + bush.widthRadius/5, bush.widthRadius)
-       love.graphics.circle("fill", bush.pos.x + i * bush.widthRadius, bush.pos.y + bush.height + bush.widthRadius/5, bush.widthRadius)
-
-    end
-    for i = 1,height_circles,1
-    do 
-        love.graphics.circle("fill", bush.pos.x + bush.heightRadius/5, bush.pos.y + i* bush.heightRadius, bush.heightRadius)
-        love.graphics.circle("fill", bush.pos.x + bush.width + bush.heightRadius/5, bush.pos.y + i* bush.heightRadius, bush.heightRadius)
-   
-    end
 end
