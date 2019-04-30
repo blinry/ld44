@@ -42,6 +42,7 @@ function love.load()
             sounds[filename:sub(1,-5)] = love.audio.newSource("sounds/"..filename, "static")
         end
     end
+    sounds.slam:setVolume(0.1)
 
     music = {}
     for i,filename in pairs(love.filesystem.getDirectoryItems("music")) do
@@ -99,7 +100,6 @@ function resetGame()
     world:setCallbacks(beginContact, endContact)
 
     playerLifePoints = 50
-    playerLifePointsStep = 4
     playerAcceleration = 100000
     playerSpeed = CANVAS_WIDTH/5
     -- player = Entity:new(playerPos, playerSpeed, playerLifePoints)
@@ -152,8 +152,8 @@ function initLevel(n)
 end
 
 function levelPaths()
-    title = "Choices"
-    description = "Don't think too much. Sometimes you have to push your way through."
+    title = "Finale"
+    description = "The final challenge between you and your freedom is the garden in front of the bank. Which horrors might await you here?"
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -222,7 +222,7 @@ end
 
 function levelIntro()
     title = "Today's the day"
-    description = "You've been held as a prisoner in this bank for your whole life. The bankers treated you poorly, and even tried to put a bottle cap in you at one point. You decide that today, you will get your revenge.\n\nPress arrow keys to move. Guide all those capitalist pigs to the vault door to trap them!"
+    description = "You've been held as a prisoner in this bank for your whole life. The bankers treated you poorly, and even tried to put a bottle cap in you at one point. You decide that today, you will get your revenge.\n\nPress arrow keys to move. Lure all those capitalist pigs to the vault door to trap them!"
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -243,7 +243,7 @@ end
 
 function levelKey()
     title = "The Object"
-    description = "On the next floor, you spot a strangely-formed golden object. You've never seen something like that before, and you decide to investigate more."
+    description = "As you approach the exit of the bank, you spot a strangely-formed golden object. You've never seen something like that before, and you decide to investigate it."
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*8/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -277,7 +277,7 @@ end
 -- introduce holes
 function levelHole()
     title = "Barricade"
-    description = "At this point, word about your breakout attempt has started to spread. Some bankers have started to barricade themselves. But maybe you can use their greed for money to lure them out and trap them, without killing them?\n\nPress left control or shift to drop coins."
+    description = "The bankers have built a scary-looking blockade to prevent you from progressing. You decide to carefully make your way through that, being careful not to kill the bankers while doing that.\n\nAfter all, you're a piggy bank, not a monster.\n\nPress left control or shift to drop coins."
 
     playerPos = vector(CANVAS_WIDTH/10, CANVAS_HEIGHT*1/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -303,7 +303,7 @@ end
 -- introduce coin following
 function levelFollow()
     title = "Currency is your life"
-    description = "The bankers have built a scary-looking blockade to prevent you from progressing. You decide to carefully make your way through that, being careful not to kill the bankers while doing that.\n\nAfter all, you're a piggy bank, not a monster.\n\nPress left control or shift to drop coins."
+    description = "At this point, word about your breakout attempt has started to spread. Some bankers have started to barricade themselves. But maybe you can use their greed for money to first distract them, then lure them out? As a pacifist pig, you don't want them to die.\n\nPress left control or shift to drop coins."
 
     playerPos = vector(CANVAS_WIDTH/2, CANVAS_HEIGHT*9/10)
     player = Player:new(playerPos, playerSpeed, playerLifePoints)
@@ -360,12 +360,14 @@ function beginContact(a, b, collision)
         aObject.currentlyHeld = nil
     end
 
-
+    sounds.death:setPitch(math.random(70, 130)/100)
     if bClass == "Follower" and aClass == "Player" then
         aObject.beingDamaged = aObject.beingDamaged + 1
+        sounds.death:play()
     end
     if aClass == "Follower" and bClass == "Player" then
         bObject.beingDamaged = bObject.beingDamaged + 1
+        sounds.death:play()
     end
 
     -- if a:getUserData() and b:getUserData() then
@@ -518,7 +520,7 @@ function love.update(dt)
     --     player.lifePoints = player.lifePoints - lifeIncrease/2
     -- else
     if player.lifePoints < playerLifePoints then
-        player.lifePoints = player.lifePoints + lifeIncrease/20
+        player.lifePoints = player.lifePoints + lifeIncrease/10
     end
     -- end
 
@@ -569,7 +571,7 @@ function processHoleCollisions()
             local area = 4*follower:radius()^2
 
             if pixelOverlap > area/2 then
-                die("You killed a banker.")
+                die("You killed a capitalist pig. As a pacifist piggy, you don't want to do that.")
                 return
             end
         end
@@ -581,7 +583,7 @@ function processHoleCollisions()
         local area = 4*player:radius()^2
 
         if pixelOverlap > area/2 then
-            die("You died in a spiky pit.")
+            die("You died in a spiky pit. That's not how you envisioned your evening to be like.")
             return
         end
     end
@@ -619,9 +621,11 @@ function collide(dt)
         local dy = trap.pos.y - followerY
         dist = math.sqrt ( dx * dx + dy * dy )
         follower_radius = 0 -- placeholder
-        if trap.radius > ( dist  + follower_radius) then
+        if trap.radius*1.5 > ( dist  + follower_radius) then
             follower.mobility = false
             trap.gotFollower = true
+            sounds.slam:setPitch(math.random(90, 110)/100)
+            sounds.slam:play()
         end
     end
 
@@ -634,6 +638,8 @@ function collide(dt)
         if diff:len() < crumb:radius()+player:radius() and timeSincePlaced > 1 then
             table.remove(breadCrumbs, i)
             player.lifePoints = player.lifePoints + CRUMB_LIFE_POINTS
+            sounds.coindrop:setPitch(math.random(90, 110)/100)
+            sounds.coindrop:play()
         end
     end
 
@@ -701,9 +707,12 @@ end
 
 function love.keypressed(key)
     if string.find(key, "%d") then
-        state = "game"
-        initLevel(tonumber(key))
-        return
+        local n = tonumber(key)
+        if n >= 1 and n <= 5 then
+            state = "game"
+            initLevel(n)
+            return
+        end
     end
 
     if state == "title" then
@@ -738,18 +747,9 @@ function love.keypressed(key)
                 love.window.setFullscreen(not isFullscreen)
             elseif key == "r" then
                 die()
-            elseif key == "lctrl" then
+            elseif key == "lctrl" or key == "lshift" then
                 if player.lifePoints > CRUMB_LIFE_POINTS then
-                    sounds.coindrop:play()
-                    local currentBreadCrumb = BreadCrumb:new(
-                        vector(player.body:getPosition()),
-                        CRUMB_LIFE_POINTS,
-                        love.timer.getTime())
-                    table.insert(breadCrumbs, currentBreadCrumb)
-                    player.lifePoints = player.lifePoints - CRUMB_LIFE_POINTS
-                end
-            elseif key == "lshift" then
-                if player.lifePoints > CRUMB_LIFE_POINTS then
+                    sounds.coindrop:setPitch(math.random(90, 110)/100)
                     sounds.coindrop:play()
                     local currentBreadCrumb = BreadCrumb:new(
                         vector(player.body:getPosition()),
@@ -796,12 +796,14 @@ function love.draw()
     love.graphics.draw(images.floor, images.floor:getWidth(), 2*images.floor:getHeight(), 0, 1, 1)
 
     if state == "title" then
-        love.graphics.setColor(0.2, 0.2, 0.2)
         love.graphics.setFont(fonts.vollkorn[150])
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.printf("Capitalist Piggies", 0+5, 100+5, CANVAS_WIDTH, "center")
+        love.graphics.setColor(0.2, 0.2, 0.2)
         love.graphics.printf("Capitalist Piggies", 0, 100, CANVAS_WIDTH, "center")
 
         love.graphics.setFont(fonts.vollkorn[50])
-        love.graphics.printf("Made in 72 hours\nfor Ludum Dare 44\n\nby Agustín Ramos Anzorena, Alan Chu,\n Byung Joo Shin, Sebastian Morr, and Tim Vieregge\n\n\nPress any key to start!", 0, 100+300, CANVAS_WIDTH, "center")
+        love.graphics.printf("made in 72 hours\nfor Ludum Dare 44\n\nby Agustín Ramos Anzorena, Alan Chu,\n Byung Joo Shin, Sebastian Morr, and Tim Vieregge\n\n\nPress any key to start!", 0, 100+300, CANVAS_WIDTH, "center")
 
         love.graphics.setColor(1, 1, 1)
         love.graphics.draw(images.pig, 300, 450, 0, 0.5, 0.5, images.pig:getWidth()/2, images.pig:getHeight()/2)
@@ -809,11 +811,10 @@ function love.draw()
     elseif state == "end" then
         love.graphics.setColor(0.2, 0.2, 0.2)
         love.graphics.setFont(fonts.vollkorn[50])
-        love.graphics.printf("You made it out of the bank!\n\nThanks for playing! :)\n\n(Press space to return to the title screen.)", 0, 100+300, CANVAS_WIDTH, "center")
+        love.graphics.printf("Congrats, you made it out of the bank!\nYou are a free pig now, and you're glad you trapped all those capitalist piggies.\n\nNow, all you have to worry about is those kids with their hammers...\n\nThanks for playing! :)\n\n(Press space to return to the title screen.)", 0, 100+300, CANVAS_WIDTH, "center")
 
         love.graphics.setColor(1, 1, 1)
-        love.graphics.draw(images.pig, 300, 450, 0, 0.5, 0.5, images.pig:getWidth()/2, images.pig:getHeight()/2)
-        love.graphics.draw(images.coin, 1600, 450, 0, 2, 2, images.coin:getWidth()/2, images.coin:getHeight()/2)
+        love.graphics.draw(images.pigNaked, CANVAS_WIDTH/2, 250, 0, 0.5, 0.5, images.pig:getWidth()/2, images.pig:getHeight()/2)
     else
 
         -- draw wall
@@ -873,7 +874,7 @@ function love.draw()
         --     -- change color to green
         --     love.graphics.setColor(255, 0, 0, 255)
         -- end
-        love.graphics.setColor(0.8, 0.45, 0.2, 1)
+        love.graphics.setColor(0.9, 0.75, 0.6, 1)
         love.graphics.draw(images.vault, trap.pos.x-trap.radius, trap.pos.y-trap.radius, 2*trap.radius/images.vault:getWidth(), 2*trap.radius/(images.vault:getHeight()))
 
 
@@ -881,6 +882,12 @@ function love.draw()
         --     love.graphics.setColor(0.8, 0.45, 0.2, 1)
         --     love.graphics.draw(images.vault, subtrap.pos.x-subtrap.radius, subtrap.pos.y-subtrap.radius, 2*subtrap.radius/images.vault:getWidth(), 2*subtrap.radius/(images.vault:getHeight()))
         -- end
+
+        love.graphics.setColor(1, 1, 1, 1)
+        -- draw crumbdrops
+        for _, breadCrumb in pairs(breadCrumbs) do
+            drawCrumb(breadCrumb)
+        end
 
         -- draw player
         love.graphics.setColor(1, 1, 1, 1) -- set color of player
@@ -911,16 +918,10 @@ function love.draw()
             -- love.graphics.circle("fill", followerX, followerY, follower.shape:getRadius())
         end
 
-        love.graphics.setColor(1, 1, 1, 1)
-        -- draw crumbdrops
-        for _, breadCrumb in pairs(breadCrumbs) do
-            drawCrumb(breadCrumb)
-        end
-        
-
         -- draw bushes
+        love.graphics.setColor(1, 1, 1, 1)
         for _, bush in pairs(bushes) do
-            love.graphics.draw(images.bush, bush.pos.x+50, bush.pos.y+50, 0, 2, 2, images.bush:getWidth()/2, images.bush:getHeight()/2)
+            love.graphics.draw(images.bush, bush.pos.x+90, bush.pos.y+50, 0, 2, 2, images.bush:getWidth()/2, images.bush:getHeight()/2)
         end
 
         -- draw pickups
@@ -930,7 +931,7 @@ function love.draw()
         end
 
         -- draw health bars
-        local lifeCoins = math.floor(player.lifePoints / playerLifePointsStep)
+        local lifeCoins = math.floor(player.lifePoints / CRUMB_LIFE_POINTS)
         for i=0, lifeCoins do 
             love.graphics.draw(images.coin, 15 + (i*60), 15, 0, .5, .5)
         end

@@ -27,10 +27,10 @@ end
 function DynamicEntity:update()
     -- flip graphics, if needed
     vx = self.body:getLinearVelocity()
-    if vx >= 20 then
+    if vx >= 100 then
         self.flip = 1
     end
-    if vx <= -20 then
+    if vx <= -100 then
         self.flip = -1
     end
 

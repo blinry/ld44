@@ -9,7 +9,7 @@ end
 function Player:update()
     DynamicEntity.update(self)
     if self.lifePoints <= 0 then
-        die("Killed by a piggie")
+        die("You were killed by a capitalist pig. Sure, they look cute, but don't underestimate them. They are extremely dangerous.")
     end
 end
 
