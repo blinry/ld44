@@ -950,7 +950,7 @@ function love.draw()
 
             local text = ""
             if reasonOfDeath and reasonOfDeath ~= "" then
-                text = reasonOfDeath .. "\n\n(Press space to try again.)"
+                text = reasonOfDeath .. "\n(Press space to try again.)\n\nUse the arrow keys to move and press left ctrl (or shift) to lure the capitalist pigs"
             else
                 text = description .. "\n\n(Press space to start.)"
             end
