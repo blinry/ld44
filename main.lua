@@ -352,11 +352,12 @@ function beginContact(a, b, collision)
     if aClass == "Door" and bClass == "Player" and bObject.currentlyHeld then 
         aObject.locked = false
         sounds.dooropening:play()
-        
+        bObject.currentlyHeld = nil
     end
     if bClass == "Door" and aClass == "Player" and aObject.currentlyHeld then
         bObject.locked = false
         sounds.dooropening:play()
+        aObject.currentlyHeld = nil
     end
 
 
@@ -889,12 +890,12 @@ function love.draw()
 
         -- draw player
         love.graphics.setColor(1, 1, 1, 1) -- set color of player
-        if player.currentlyHeld then
-            love.graphics.setColor(0.5, 1, 0.5, 1)
-        end
         local playerScale = math.max(player:radius()/200, 0.2)
         local playerX, playerY = player.body:getPosition()
         love.graphics.draw(images.pigNaked, playerX, playerY, 0, playerScale*player.flip, playerScale, images.pig:getWidth()/2, images.pig:getHeight()/2)
+        if player.currentlyHeld then
+            love.graphics.draw(images.key, playerX, playerY, 0, 0.8*player.flip, 0.8, images.key:getWidth()/2, images.key:getHeight()/2)
+        end
         -- love.graphics.setColor(0.5, 0.5, 0.5, 0.5)
         -- love.graphics.circle("fill", playerX, playerY, player.shape:getRadius())
 
@@ -936,7 +937,7 @@ function love.draw()
         -- draw pickups
         love.graphics.setColor(1, 1, 1, 1)
         for _, pickup in pairs(pickups) do
-            love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 1, 1, images.key:getWidth()/2, images.key:getHeight()/2)
+            love.graphics.draw(images.key, pickup.pos.x, pickup.pos.y, 0, 0.8, 0.8, images.key:getWidth()/2, images.key:getHeight()/2)
         end
 
         -- draw description
